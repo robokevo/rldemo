@@ -26,4 +26,4 @@ class Grid {
   get height() {
       return this._height;
   }
-};
+}; 

@@ -31,6 +31,11 @@ class Game {
     return this._depth;
   }
 
+  getTile(x, y, z) {
+    let newZ = z ?? this._currentDepth;
+    return this._levels[newZ].getValue(x, y);
+  }
+
   newTile(tileType) {
     //to-do: level/biome support for varied tiles
     const newTile = new Tile(this._tiles[tileType]);

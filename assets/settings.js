@@ -59,7 +59,20 @@ APP_SETTINGS.viewData = {
     },
     render: function() {
       const display = this.display;
-      display.drawText(1,1, this.name + " Screen");
+      const game = this.state;
+      // rendering game area
+      const gameWidth = game.width;
+      const gameHeight = game.height;
+      for (let x = 0; x < gameWidth; x++) {
+        for (let y = 0; y < gameHeight; y++) {
+          let tile = game.getTile(x, y);
+          display.draw(x, y,
+          tile.char,
+          tile.fgColor,
+          tile.bgColor
+          );
+        }
+      }
     }
   },
 }
@@ -80,10 +93,10 @@ APP_SETTINGS.gameData = {
   },
   tileData:   {
     wall: {
-      baseGlyph: '#',
+      char: '#',
     },
     floor: {
-      baseGlyph: '.',
+      char: '.',
     }
   },
 }

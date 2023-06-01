@@ -1,6 +1,6 @@
 class Glyph {
   constructor(settings) {
-    this._char = settings.chr || ' ';
+    this._char = settings.char || ' ';
     this._fgColor = settings.fgColor || 'white';
     this._bgColor = settings.bgColor || 'black';
   }
@@ -23,15 +23,9 @@ class Glyph {
 
 }
 
-class Tile {
-  constructor(settings, glyph) {
-    this._fgColor = settings.fgColor || 'white';
-    this._bgColor = settings.bgColor || 'black';
-    this._baseGlyph = settings.baseGlyph || '?';
-  }
-
-  get glyph() {
-    return this._glyph;
+class Tile extends Glyph{
+  constructor(settings) {
+    super(settings)
   }
 }
 
