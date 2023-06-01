@@ -1,48 +1,54 @@
-// todo: a screen class with inherent methods for entering, exiting, etc.
-APP_SETTINGS.screenList = {
+
+APP_SETTINGS.viewData = {
   splash: {
     name: "Splash",
     inputs: {
-      Enter:  function(main) {
-        console.log("pressed Enter in Splash");
-        main.screen.switch("menu");
-      }
+      enter:  function(main) {
+        main.changeView("menu");
+      },
+      t:  (main)=> console.log('toops'),
+    },
+    load: function() {
+      console.log(this.main._logic);
+    },
+    render: function() {
+      display = this.main.display;
+      console.log(display);
     }
   },
   menu: {
     name: "Menu",
     inputs: {
-      Enter:  function() {
+      enter:  function(main) {
         console.log("pressed Enter in Menu");
+        main.changeView("play");
       },
-      Escape:  function(main) {
+      escape:  function(main) {
         console.log("pressed Escape in Menu");        
-        main.screen.switch("splash");
+        main.changeView("splash");
       }
     },
-  play:"",
-  }
-};
-
-/*APP_SETTINGS.screens.playScreen = {
-  enter:  function() {
-    console.log("Entered play screen");
   },
-  exit: function() {
-    console.log("Exited play screen");
-  },
-  render: function(display) {
-    // renders prompt to screen
-    display.drawText(1,1, "Press [Enter] againe");
-  },
-  handleInput:  function(){
-    if (inputType === 'keydown') {
-      if (inputData.keyCode === ROT.VK_RETURN) {
-        mainApp.switchScreen(mainApp._screens.startScreen);
-      } else {
-        console.log('?');
-      }
+  play: {
+    name: "Play",
+    inputs: {
+      enter:  function() {
+          console.log("pressed Enter in Play");
+        },
+      escape:  function(main) {
+          console.log("pressed Escape in Play");        
+          main.changeView("menu");
+        },
+      m:  function(main) {
+        console.log(main.game);
+      },
+      M:  function(main){
+        console.log('emmm');
+      },
+    },
+    load: function(){
+      this.main._logic = 5;
     }
-  }
+  },
 }
-*/
+

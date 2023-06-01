@@ -1,9 +1,11 @@
-let APP_SETTINGS = {}
+/*//import { test2Exp, testExp } from "./screen2.js";*/
+
+let APP_SETTINGS = {};
 document.addEventListener("DOMContentLoaded", function() {
   // todo: Compatibility test
   // 'ROT.isSupported()' from cctut01 deprecated
 
-  // fwiw 'let' support should be a decent test for our needs
+  // fwiw 'let' support should be a decent first test for our needs
   let supported = true;
   let settings = APP_SETTINGS;
   if (supported) {
@@ -15,10 +17,9 @@ document.addEventListener("DOMContentLoaded", function() {
     settings.appTarget = document.getElementById('app');
     let mainApp = new newApp(settings);
     mainApp.init();
-    //mainApp.switchScreen(mainApp._screens.startScreen);
   } else {
     // Compat error
-    alert('Please use Firefox or a Chromium-based browser');
+    alert('Please use a modern (e.g., Firefox or Chromium-based) browser');
   }
 });
 
@@ -28,104 +29,48 @@ document.addEventListener("DOMContentLoaded", function() {
 class newApp {
   constructor(settings) {
     if (settings) {
-      settings.main = this;
       this._settings = settings;
-      this._screenList = this._settings.screenList;
-      this._screen = new newApp.Screen(this);
-      this._container = undefined;
-      this._display = undefined;
-      this._appTarget = settings.appTarget || document.body;
       this._displayWidth = settings.displayWidth || 80;
       this._displayHeight = settings.displayHeight || 20;
+      this._display = new ROT.Display({
+        width: this._displayWidth,
+        height: this._displayHeight
+      });
+      this._viewData = settings.viewData;
+      //this._vHandler = new ViewHandler(this);
+      this._store = {};
+      this._views = {};
+      this._activeView = null;
+      let view;
+      let views = Object.keys(this._viewData);
+      // reads through view data, instantiates view objects from settings
+      for (const v in views){
+        view = new View(this._viewData[views[v]], this);
+        this._views[views[v]] = view;
+        this._store[views[v]] = null;
+      }
+      this._container = undefined;
+      this._game = settings.game || undefined;
+      this._appTarget = settings.appTarget || document.body;
     } else {
       window.alert('oops, refresh the page pls');
     }
   }
 
-  static Screen = class {
-    constructor(main) {
-      // todo: parent class for screen elements to pull references from main
-      this._main = main;
-      this._activeScreen = null;
-    }
-
-    get main() {
-      return this._main;
-    }
-
-    get inputs(){
-      return this._activeScreen.inputs;
-    }
-
-    get name(){
-      return this._activeScreen.name;
-    }
-    enter() {
-      console.log("Entered " + this.name + " screen");
-    }
-    exit() {
-      console.log("Exited " + this.name + " screen");
-    }
-    render() {
-      const display = this.main.display;
-      // renders prompt to screen
-      display.drawText(1,1, this.name + " Screen");
-    }
-    handleInput(input, inputType) {
-      // [Enter] moves to next screen
-      // todo: keep on up status of .hasOwn() support
-      let newInput
-      if (inputType === 'keydown') {
-        newInput = input.key
-        if (this.inputs.hasOwnProperty(newInput)){
-          this.inputs[newInput](this.main);
-        } else {
-          console.log(newInput);
-        };
-      }
-      
-    }
-
-    clear() {
-      this.main.display.clear();
-    }
-
-    switch(screenName) {
-      // Transitions between different screens
-      // Check for current screen to exit, then clears and renders
-      let currentScreen = this._activeScreen;
-      if (currentScreen) {
-        this.exit();
-      }
-      this.clear();
-      //this._activeScreen = new newApp.Screen();
-      if (screenName) {//(!this._activeScreen !== null) {
-        this._activeScreen = this.main._screenList[screenName];
-        this.enter();
-        this.render();
-      }
-    }
-
-
-  };
-
   init() {
-    this._display = new ROT.Display({
-      width: this._displayWidth,
-      height: this._displayHeight
-    });
-    this._container = this.display.getContainer();
+    this._container = this._display.getContainer();
     // anchor to app div
     this.attach();
     // todo: re-write for combos, codes, action suppression (e.g. arrow key scroll)
     let bindEvent = function(event, main) {
       let self = main;
       window.addEventListener(event, function(e) {
-      self.handleInput(e, e.type);
+      self.parseInput(e, e.type);
       });
     }
     bindEvent('keydown', this);
-    this.screen.switch('splash');
+    // to-do: soft code start screen into vHandler object
+    this.changeView('splash');
   }
 
   attach() {
@@ -133,18 +78,65 @@ class newApp {
     this._appTarget.appendChild(this._container);
   }
 
-  get display() {
-    return this._display;
-  }
-
-  get screen() {
-    return this._screen;
-  }
-
-  handleInput(event, eType) {
+  parseInput(event, eType) {
     if (eType === 'keydown') {
-      this.screen.handleInput(event, eType);
+      this.vHandler.parseInput(event, eType);
     }
   }
 
+  getView(viewName) {
+    return this._views[viewName];
+  }
+
+  changeView(viewName) {
+    let currentView = this._activeView;
+    if (currentView) {
+      this.view.unload();
+      this.view.clear();
+    }
+    //this._activeScreen = new newApp.Screen();
+    if (viewName) {//(!this._activeScreen !== null) {
+      this._activeView = this._views[viewName];
+      this.view.load();
+    }
+  }
+  
+  getState(view) {
+    return this._store[view];
+  }
+
+  parseInput(input, inputType) {
+    // [Enter] moves to next screen
+    // todo: handle escaping events (e.g. arrow key scroll, tabbing)
+    let newInput;
+    const view = this.view;
+    if (inputType === 'keydown') {
+      //to-do: move lower-casing to per-view level to allow caps inputs
+      newInput = input.key.toLowerCase();
+      //to-do: view.inputMap instead of directly to inputs to allow remapping
+      if (Object.hasOwn(view.inputs, newInput)){
+        //to-do: make inputs import as methods like load, etc.
+        view.command(newInput);
+      } else {
+        console.log(newInput);
+      };
+    }
+    
+  }
+
+  get views() {
+    return this._views;
+  }
+  
+  get view() {
+    return this._activeView;
+  }
+
+  get inputs() {
+    return this._activeView.inputs;
+  }
+
+  get settings() {
+    return this._settings;
+  }
 };
