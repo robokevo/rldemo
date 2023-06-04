@@ -15,10 +15,15 @@ class Game {
       this._height = settings.worldData.height;
       // todo: specific tiles for biomes
       this._tiles = settings.tileData;
+      this._noTile = new Tile(this._tiles['none']);
       this._currentDepth = settings.worldData.currentDepth || 0;
       this._levels[this._currentDepth] = new Grid(this._width,this._height);
+      // todo: for centering play area; will eventually center on player
+      this._centerX = Math.round(this._width/2);
+      this._centerY = Math.round(this._height/2);
   }
 
+  // width and height pertain to the game world, not the UI
   get width() {
     return this._width;
   }
@@ -31,9 +36,46 @@ class Game {
     return this._depth;
   }
 
+  // for centering play area on target display area
+  get centerX() {
+    return this._centerX;
+  }
+
+  get centerY() {
+    return this._centerY;
+  }
+
+  get cursor() {
+    return {x: this.centerX, y: this.centerY};
+  }
+
+  get level() {
+    return this._levels[this._currentDepth];
+  }
+
+  get noTile() {
+    return this._noTile;
+  }
+
+  get view() {
+    return this._view;
+  }
+
+  set centerX(newX) {
+    this._centerX = newX;
+  }
+
+  set centerY(newY) {
+    this._centerY = newY;
+  }
+
   getTile(x, y, z) {
     let newZ = z ?? this._currentDepth;
-    return this._levels[newZ].getValue(x, y);
+    if (this.level.contains(x,y)) {
+      return this.level.getValue(x, y);
+    } else {
+      return this.noTile;
+    }
   }
 
   newTile(tileType) {
@@ -56,7 +98,7 @@ class Game {
     const floorTile = new Tile(this._tiles['floor']);
     // iterate one last time to write to map
     generator.create(function(x,y,v){
-      if (v === 1) {
+      if (v === 0) {
         newLevel.setValue(x, y, wallTile);
         // can't find 'this' within func [arrow func??]
         //this._levels[depth].setValue(x,y, newTile('wall'));
@@ -74,4 +116,17 @@ class Game {
     }
   }
 
+  move(dX, dY) {
+    let newX = this.centerX + dX;
+    let newY = this.centerY + dY;
+    if (this.level.contains(newX,newY)) {
+      this.centerX = newX;
+      this.centerY = newY;
+      console.log(true);
+      return true;
+    }
+  }
+
+
+// end of Game class definition
 };

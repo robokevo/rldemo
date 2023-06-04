@@ -11,10 +11,10 @@ document.addEventListener("DOMContentLoaded", function() {
   if (supported) {
     // initializing new ROT display object
     // todo: read window size/media queries during init()
-    settings.displayWidth = 80;
-    settings.displayHeight = 20;
+    //settings.appData.displayWidth = 80;
+    //settings.appData.displayHeight = 20;
     // todo: replace with newApp.setTarget()
-    settings.appTarget = document.getElementById('app');
+    settings.appData.appTarget = document.getElementById('app');
     let mainApp = new newApp(settings);
     mainApp.init();
   } else {
@@ -30,8 +30,10 @@ class newApp {
   constructor(settings) {
     if (settings) {
       this._settings = settings;
-      this._displayWidth = settings.displayWidth || 80;
-      this._displayHeight = settings.displayHeight || 20;
+      let appSettings = settings.appData;
+      // to
+      this._displayWidth = appSettings.startWidth || 80;
+      this._displayHeight = appSettings.startHeight || 20;
       this._display = new ROT.Display({
         width: this._displayWidth,
         height: this._displayHeight
@@ -51,7 +53,7 @@ class newApp {
       }
       this._container = undefined;
       this._game = settings.game || undefined;
-      this._appTarget = settings.appTarget || document.body;
+      this._appTarget = appSettings.appTarget || document.body;
     } else {
       window.alert('oops, refresh the page pls');
     }
@@ -69,7 +71,7 @@ class newApp {
       });
     }
     bindEvent('keydown', this);
-    // to-do: soft code start screen into vHandler object
+    // todo: soft code start screen into vHandler object
     this.changeView('splash');
   }
 
@@ -111,11 +113,11 @@ class newApp {
     let newInput;
     const view = this.view;
     if (inputType === 'keydown') {
-      //to-do: move lower-casing to per-view level to allow caps inputs
+      //todo: move lower-casing to per-view level to allow caps inputs
       newInput = input.key.toLowerCase();
-      //to-do: view.inputMap instead of directly to inputs to allow remapping
+      //todo: view.inputMap instead of directly to inputs to allow remapping
       if (Object.hasOwn(view.inputs, newInput)){
-        //to-do: make inputs import as methods like load, etc.
+        //todo: make inputs import as methods like load, etc.
         view.command(newInput);
       } else {
         console.log(newInput);
@@ -138,5 +140,13 @@ class newApp {
 
   get settings() {
     return this._settings;
+  }
+
+  get displayWidth() {
+    return this._displayWidth;
+  }
+
+  get displayHeight() {
+    return this._displayHeight;
   }
 };
