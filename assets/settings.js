@@ -126,8 +126,8 @@ APP_SETTINGS.viewData = {
 
 ////////////////////////////////////////////
 APP_SETTINGS.appData = {
-  startWidth: 80,
-  startHeight: 24,
+  startWidth: 38,
+  startHeight: 20,
 };
 
 APP_SETTINGS.gameData = {
