@@ -53,8 +53,16 @@ class newApp {
       }
       this._container = undefined;
       this._game = settings.game || undefined;
+      // target div to anchor canvas
       this._appTarget = appSettings.appTarget || document.body;
-    } else {
+      // input throttle in ms to avoid keyboard spam
+      // todo: make sure throttle doesn't interfere with input timing
+      //  or see if negative throttle on views can balance
+      // (e.g. smaller amount of throttle needed for real time engine)
+      this._globalThrottle = appSettings.globalThrottle || 40;
+      this._lastInputTime = 0;
+      // to-do: input log for combos
+      } else {
       window.alert('oops, refresh the page pls');
     }
   }
@@ -112,18 +120,21 @@ class newApp {
     // todo: handle escaping events (e.g. arrow key scroll, tabbing)
     let newInput;
     const view = this.view;
-    if (inputType === 'keydown') {
-      //todo: move lower-casing to per-view level to allow caps inputs
-      newInput = input.key.toLowerCase();
-      //todo: view.inputMap instead of directly to inputs to allow remapping
-      if (Object.hasOwn(view.inputs, newInput)){
-        //todo: make inputs import as methods like load, etc.
-        view.command(newInput);
-      } else {
-        console.log(newInput);
-      };
-    }
-    
+    let time = Date.now();
+    if (time - this.lastInputTime>this.globalThrottle) {
+      if (inputType === 'keydown') {
+        //todo: move lower-casing to per-view level to allow caps inputs
+        newInput = input.key.toLowerCase();
+        //todo: view.inputMap instead of directly to inputs to allow remapping
+        if (Object.hasOwn(view.inputs, newInput)){
+          //todo: make inputs import as methods like load, etc.
+          view.command(newInput);
+        } else {
+          console.log(newInput);
+        };
+      }
+    this.lastInputTime = time;  
+    }  
   }
 
   get views() {
@@ -149,4 +160,23 @@ class newApp {
   get displayHeight() {
     return this._displayHeight;
   }
+
+  get lastInputTime() {
+    return this._lastInputTime;
+  }
+
+  set lastInputTime(inputTime) {
+    this._lastInputTime = inputTime;
+  }
+
+  get globalThrottle() {
+    // to-do: add view's throttle and return sum
+    return this._globalThrottle;
+  }
+
+  set globalThrottle(newGThrot) {
+    // this should only set the global setting and not interfere with views
+    this._globalThrottle = newGThrot;
+  }
+  
 };

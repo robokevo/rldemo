@@ -48,31 +48,39 @@ APP_SETTINGS.viewData = {
         main.changeView("menu");
       },
       arrowup: function(main) {
-        main.view.state.move(0,-1);
+        const game = main.view.state;
+        game.player.tryPos({x:0,y:-1,z:0});
         main.view.render();
         console.log('up');
       },
       arrowdown: function(main) {
-        main.view.state.move(0,1);
+        const game = main.view.state;
+        game.player.tryPos({x:0,y:1,z:0});
         main.view.render();
         console.log('down');
       },
       arrowleft: function(main) {
-        main.view.state.move(-1,0);
+        const game = main.view.state;
+        game.player.tryPos({x:-1,y:0,z:0});
         console.log('left');
         main.view.render();
       },
       arrowright: function(main) {
-        main.view.state.move(1,0);
+        const game = main.view.state;
+        game.player.tryPos({x:1,y:0,z:0});
         console.log('right');
         main.view.render();
       },
+      t:  function(main) {
+        console.log(main.view.state.player);
+      }
     },
     load: function() {
       if (!this.state) {
         // passing view into game object for easier rendering
         this.state = new Game(this.main.settings.gameData, this);
         this.state.makeWorld();
+        this.state.freeTile(this.state.player);
       } else {
         console.log(this.state);
       }
@@ -81,6 +89,7 @@ APP_SETTINGS.viewData = {
     render: function() {
       const display = this.display;
       const game = this.state;
+      const player = game.player;
       const main = this.main;
       // rendering game area
       const gameWidth = game.width;
@@ -89,6 +98,7 @@ APP_SETTINGS.viewData = {
       const dWidth = main.displayWidth;
       const cursor = game.cursor;
       // todo: link top left xy to specific panel
+      // todo: 2-3 tile buffer before screen pan to avoid jerking camera
       // to bind player view to stage, use the following:
       // let topLeftX = Math.max(0, cursor.x - (dWidth/2));
       // let topLeftY = Math.max(0, cursor.y - (dHeight/2));
@@ -99,9 +109,6 @@ APP_SETTINGS.viewData = {
       for (let x = topLeftX; x < topLeftX + dWidth; x++) {
         for (let y = topLeftY; y < topLeftY + dHeight; y++) {
           let tile = game.getTile(x, y);
-          //if (!tile) {
-          //  alert('uhoh');
-          //}
           display.draw(
           x - topLeftX,
           y - topLeftY,
@@ -114,9 +121,11 @@ APP_SETTINGS.viewData = {
       // render cursor
       display.draw(
         // when corner is out of bounds, topleft values go negative and center cursor
-        cursor.x-topLeftX,
-        cursor.y-topLeftY,
-        '\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
+        player.x-topLeftX,
+        player.y-topLeftY,
+        player.char,
+        //base+tone+joiner+rocket
+        //'\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
         //'blue',
         //'green'
       );
@@ -126,6 +135,8 @@ APP_SETTINGS.viewData = {
 
 ////////////////////////////////////////////
 APP_SETTINGS.appData = {
+  // 38x20 lineheight fits in 320x320, smaller smartwatch res
+  // todo: calc inflating font size to keep form factor
   startWidth: 38,
   startHeight: 20,
 };
@@ -135,8 +146,8 @@ APP_SETTINGS.gameData = {
     depth:        6,
     currentDepth: 0,
     levels:       [],
-    width:        200,
-    height:       120,
+    width:        60,
+    height:       100,
 
   },
   glyphData: {
@@ -144,19 +155,38 @@ APP_SETTINGS.gameData = {
   },
   tileData:   {
     wall: {
-      char: '\u{1faa8}',
-      fgColor: 'black',
-      bgColor: 'gray',
+      char: '\u{26F0}',//'
+      fgColor: 'saddlebrown',
+      bgColor: '#700000',
+      destructible: true,
+      passable: false,
+      destroyed: 'floor',
     },
     floor: {
-      char: '.',
-      fgColor: 'saddlebrown',
-      bgColor: 'sienna',
+      char: '\`',
+      fgColor: '#aa2222',
+      bgColor: '#900000',
+      passable: true,
     },
     none: {
-      char: '~',
+      char: '\u{1F3D4}',
       fgColor: 'saddlebrown',
-      bgColor: 'darkred',
+      bgColor: '#700000',
     }
   },
+
+  playerData: {
+    name: 'astro',
+    char: '\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
+    mobile: true,
+    speed:  100,
+  },
+
+  entityData: {
+    mushroom: {
+      name: 'mushroom',
+    }
+
+  }
+
 }
