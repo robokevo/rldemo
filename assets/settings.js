@@ -49,27 +49,39 @@ APP_SETTINGS.viewData = {
       },
       arrowup: function(main) {
         const game = main.view.state;
-        game.player.tryPos({x:0,y:-1,z:0});
+        const result = game.player.tryPos({x:0,y:-1,z:0});
         main.view.render();
+        if (result) {
+          game.engine.unlock();
+        }
         console.log('up');
       },
       arrowdown: function(main) {
         const game = main.view.state;
-        game.player.tryPos({x:0,y:1,z:0});
+        const result = game.player.tryPos({x:0,y:1,z:0});
         main.view.render();
+        if (result) {
+          game.engine.unlock();
+        }
         console.log('down');
       },
       arrowleft: function(main) {
         const game = main.view.state;
-        game.player.tryPos({x:-1,y:0,z:0});
+        const result = game.player.tryPos({x:-1,y:0,z:0});
         console.log('left');
         main.view.render();
+        if (result) {
+          game.engine.unlock();
+        }
       },
       arrowright: function(main) {
         const game = main.view.state;
-        game.player.tryPos({x:1,y:0,z:0});
+        const result = game.player.tryPos({x:1,y:0,z:0});
         console.log('right');
         main.view.render();
+        if (result) {
+          game.engine.unlock();
+        }
       },
       t:  function(main) {
         console.log(main.view.state.player);
@@ -80,7 +92,8 @@ APP_SETTINGS.viewData = {
         // passing view into game object for easier rendering
         this.state = new Game(this.main.settings.gameData, this);
         this.state.makeWorld();
-        this.state.freeTile(this.state.player);
+        this.state.addEntity(this.state.player);
+        this.state.engine.start();
       } else {
         console.log(this.state);
       }
@@ -97,8 +110,10 @@ APP_SETTINGS.viewData = {
       const dHeight = main.displayHeight;
       const dWidth = main.displayWidth;
       const cursor = game.cursor;
+      const entities = game.entities;
       // todo: link top left xy to specific panel
       // todo: 2-3 tile buffer before screen pan to avoid jerking camera
+      //  via editing game 'cursor' object
       // to bind player view to stage, use the following:
       // let topLeftX = Math.max(0, cursor.x - (dWidth/2));
       // let topLeftY = Math.max(0, cursor.y - (dHeight/2));
@@ -119,16 +134,36 @@ APP_SETTINGS.viewData = {
         }
       }
       // render cursor
-      display.draw(
-        // when corner is out of bounds, topleft values go negative and center cursor
-        player.x-topLeftX,
-        player.y-topLeftY,
-        player.char,
-        //base+tone+joiner+rocket
-        //'\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
-        //'blue',
-        //'green'
-      );
+      //display.draw(
+      //  // when corner is out of bounds, topleft values go negative and center cursor
+      //  player.x-topLeftX,
+      //  player.y-topLeftY,
+      //  player.char,
+      //  //base+tone+joiner+rocket
+      //  //'\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
+      //  //'blue',
+      //  //'green'
+      //);
+      // render entities
+      let entity, eX, eY, eZ;
+      for (let i=0; i < entities.length;i++) {
+        entity = entities[i];
+        eX = entity.x;
+        eY = entity.y;
+        eZ = entity.z;
+        let tile = game.getTile(eX, eY);
+        if (eX >= topLeftX && eY >= topLeftY
+          && eX < topLeftX + dWidth
+          && eY < topLeftY + dHeight){
+          display.draw(
+            eX - topLeftX,
+            eY - topLeftY,
+            entity.char,
+            tile.fgColor,
+            tile.bgColor
+          );
+        }
+      }
     },
   },
 }
@@ -183,10 +218,41 @@ APP_SETTINGS.gameData = {
   },
 
   entityData: {
-    mushroom: {
-      name: 'mushroom',
+    beastiary: {
+      mushroom: {
+        name: 'mushroom',
+        char: '\u{1F344}',
+        mobile: false,
+        speed:  50,
+        qty:  25,
+      },
+      seedling: {
+        name: 'seedling',
+        char: '\u{1F331}',
+        mobile: false,
+        speed:  0,
+        qty: 20,
+      }
+    },
+    levelData: {
+      0: {
+      mushroom: {
+        qty: 3,
+        },
+      seedling: {
+        qty: 4,
+        }
+      },
+      1: {
+        mushroom: {
+          qty: 5,
+          },
+        seedling: {
+          qty: 6,
+          }
+      },
+        
     }
-
   }
 
 }

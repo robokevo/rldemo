@@ -37,6 +37,7 @@ class Tile extends Glyph{
   }
 
   get passable() {
+    // todo: check if there's an entity that is passable on tile
     return this._passable;
   }
 
@@ -44,9 +45,14 @@ class Tile extends Glyph{
     return this._destroyed;
   }
 
+  get occupied() {
+    //todo: see if needed, insert game.getEntity()
+    return;
+  }
+
   rend() {
     // perform 'on-death' actions (e.g. drop loot)
-    // to-do: anything
+    // todo: anything
     return;
   }
 }

@@ -1,30 +1,40 @@
 class Game {
-    constructor(settings) {
-      //let settings;// = newSettings;
-      //if (!settings) {
-      //  settings = {};
-      //  settings.depth = 3;
-      //  settings.currentDepth = 0;
-      //  settings.levels = [];
-      //  settings.width = 100;
-      //  settings.height = 100;
-      //}
-      settings.game = this;
-      this._depth = settings.worldData.depth;
-      this._levels = settings.worldData.levels;
-      this._width = settings.worldData.width;
-      this._height = settings.worldData.height;
-      // todo: specific tiles for biomes
-      this._tiles = settings.tileData;
-      this._noTile = new Tile(this._tiles['none']);
-      this._currentDepth = settings.worldData.currentDepth || 0;
-      this._levels[this._currentDepth] = new Grid(this._width,this._height);
-      // todo: for centering play area; will eventually center on player
-      this._player = new Entity(settings);
-      // scheduler
-      // todo: speed scheduler, realtime engine
-      this._scheduler = new ROT.Scheduler.Simple();
+  constructor(settings) {
+    //let settings;// = newSettings;
+    //if (!settings) {
+    //  settings = {};
+    //  settings.depth = 3;
+    //  settings.currentDepth = 0;
+    //  settings.levels = [];
+    //  settings.width = 100;
+    //  settings.height = 100;
+    //}
+    settings.game = this;
+    this._settings = settings;
+    this._depth = settings.worldData.depth;
+    this._levels = settings.worldData.levels;
+    this._width = settings.worldData.width;
+    this._height = settings.worldData.height;
+    // todo: specific tiles for biomes
+    this._tiles = settings.tileData;
+    this._noTile = new Tile(this._tiles['none']);
+    this._currentDepth = settings.worldData.currentDepth || 0;
+    this._levels[this._currentDepth] = new Grid(this._width,this._height);
+    // todo: for centering play area; will eventually center on player
+    this._player = new Player(settings, settings.playerData);
+    // scheduler
+    // todo: speed scheduler, realtime engine
+    this._scheduler = new ROT.Scheduler.Simple();
+    this._engine = new ROT.Engine(this._scheduler);
+    // entities will be kept in list and be loaded/unloaded per floor;
+    this._entities = [];
+    for (let i = 0; i < this._depth; i++) {
+      this._entities[i] = [];
+    }
+  }
 
+  get settings() {
+    return this._settings;
   }
 
   get player() {
@@ -76,12 +86,20 @@ class Game {
     return this._view;
   }
 
+  get entities() {
+    return this._entities[this._currentDepth];
+  }
+
   set centerX(newX) {
     this._centerX = newX;
   }
 
   set centerY(newY) {
     this._centerY = newY;
+  }
+
+  get engine() {
+    return this._engine;
   }
 
   // todo: align() to recenter after scroll, also scrolling
@@ -143,24 +161,38 @@ class Game {
         newTile.z = currentDepth;
         newLevel.setValue(x,y,newTile);
       }
-      //console.log(newLevel);
-      //  //const wallTile = new Tile(this._tiles['wall']);
-      //  //const floorTile = new Tile(this._tiles['floor']);
-      //  newLevel.setValue(x, y, wallTile);
-      //  // can't find 'this' within func [arrow func??]
-      //  //this._levels[depth].setValue(x,y, newTile('wall'));
-      //} else {
-      //  //this._levels[depth].setValue(x,y, newTile('floor'));
-      //  newLevel.setValue(x, y, floorTile);
-      //}
+
     });
     this._levels[depth] = newLevel;
+  }
+
+  populateLevel() {
+    let allSettings = this.settings;
+    let entitySettings = allSettings.entityData;
+    let levelSettings;
+    console.log(entitySettings);
+    for (let i = 0; i < this.depth; i++){
+      levelSettings = entitySettings.levelData[i];
+      if (levelSettings) {
+        let entities = Object.keys(levelSettings);
+        for (let j = 0; j < entities.length; j++) {
+          let entity = entities[j];
+          let entDetails = levelSettings[entity];
+          let instance;
+          for (let k = 0; k < entDetails.qty; k++) {
+            instance = new Entity(this.settings, entitySettings.beastiary[entity]);
+            this.addEntity(instance, i);
+          }
+        }
+      }
+    }
   }
 
   makeWorld() {
     for (let i = 0; i < this.depth; i++) {
       this.makeLevel(i);
     }
+    this.populateLevel();
   }
 
   move(entity, coord) {
@@ -185,45 +217,52 @@ class Game {
     }
   }
 
-  freeTile(entity,z) {
+  freeTile(z) {
     let freeZ = z ?? this._currentDepth;
-    let freeX, freeY;
-    while (!this.getTile(freeX,freeY).passable) {
+    let freeX, freeY, freeTile;
+    while (!this.getTile(freeX,freeY,freeZ).passable) {
       freeX = Math.floor(ROT.RNG.getUniform()*this.level.width);
       freeY = Math.floor(ROT.RNG.getUniform()*this.level.height);
+      freeTile = this.getTile(freeX,freeY,freeZ);
     }
-    entity.x = freeX;
-    entity.y = freeY;
-    entity.z = freeZ;
+    return freeTile;
   }
 
-  sleep(ms) {
-    const date = Date.now();
-    let currentDate = null;
-    //do {
-    //  currentDate = Date.now();
-    //}
+  addEntity(entity,z) {
+    let freeZ = z ?? this._currentDepth;
+    const freeXYZ = this.freeTile(freeZ);
+    entity.x = freeXYZ.x;
+    entity.y = freeXYZ.y;
+    entity.z = freeXYZ.z;
+    this._entities[freeZ].push(entity);
+  }
+
+  getEntity(x,y,z) {
+    let ent = this.entities.filter(ent => 
+      ent.x === x &&
+      ent.y === y &&
+      ent.z === z)
+    if (ent[0]) {
+      ent = ent[0];
+    } else {
+      ent = false;
+    }
+    return ent;
   }
 
 // end of Game class definition
 };
 
 class Entity extends Glyph {
-  constructor(settings) {
+  constructor(settings, subsettings) {
     super(settings);
-    let eSettings;
     this._game = settings.game;
     this._player = false;
-    if (!this._game.player) {
-      this._player = true;
-      eSettings = settings.playerData;
-    } else {
-      eSettings = settings.entityData;
-    }
-    this._name = eSettings.name || 'new buddy';
-    this._char = eSettings.char || '?';
-    this._mobile = eSettings.mobile || false;
-    this._speed = settings.speed || 0;
+    // todo: separate player class to avoid this hackiness
+    this._name = subsettings.name || 'new buddy';
+    this._char = subsettings.char || '?';
+    this._mobile = subsettings.mobile || false;
+    this._speed = subsettings.speed || 0;
   }
 
   get name() {
@@ -254,21 +293,45 @@ class Entity extends Glyph {
     this._pos.z = coord.z ?? this._pos.z;
   }
 
+  act() {
+    // for catching game loop
+    // todo: add delay to show individual movement/action
+    //  until rts
+  }
+
   tryPos(coord) {
     const game = this.game;
-    const tile = game.getTile(
+    let result = false;
+    let tile = game.getEntity(
       this.x + coord.x,
       this.y + coord.y,
       this.z + coord.z);
-    let result = false;
+    if (!tile) {
+      tile = game.getTile(
+        this.x + coord.x,
+        this.y + coord.y,
+        this.z + coord.z);
+    }
     if (tile.passable && this.mobile) { // tile.passable
-      //todo: also test for this.mobile to allow for immobile actors
+      //todo: also test for this.mobile to allow for immobilized actors
       game.move(this, coord);
       result = true;
     } else if (tile.destructible) {
+      // todo: change to attack
       game.destroyTile(tile);
       result = true;
     }
     return result;
+  }
+}
+
+class Player extends Entity {
+  constructor(settings, subsettings) {
+    super(settings, subsettings);
+    this._player = true;
+  }
+
+  act() {
+    this.game.engine.lock();
   }
 }
