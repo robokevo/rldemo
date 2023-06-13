@@ -166,7 +166,7 @@ class Game {
     this._levels[depth] = newLevel;
   }
 
-  populateLevel() {
+  populateLevels() {
     let allSettings = this.settings;
     let entitySettings = allSettings.entityData;
     let levelSettings;
@@ -192,7 +192,7 @@ class Game {
     for (let i = 0; i < this.depth; i++) {
       this.makeLevel(i);
     }
-    this.populateLevel();
+    this.populateLevels();
   }
 
   move(entity, coord) {
@@ -229,6 +229,7 @@ class Game {
   }
 
   addEntity(entity,z) {
+    //todo: check for entity as well as free tile
     let freeZ = z ?? this._currentDepth;
     const freeXYZ = this.freeTile(freeZ);
     entity.x = freeXYZ.x;
@@ -250,8 +251,28 @@ class Game {
     return ent;
   }
 
+  loadScheduler(depth) {
+    // loads ROT scheduler with list of entities; entities need .act() to
+    //  lock and unlock engine plus getSpeed() for speed scheduler
+
+    // entities will need to get unloaded and reloaded between floors
+    // todo: experiment with floor difference affecting speed/keeping other
+    //  floors active. may need dumbed down actions if so or perf will tank
+    //  or only special monsters can avoid getting removed from scheduler
+    const targetDepth = depth ?? this._currentDepth;
+    const scheduler = this._scheduler;
+    const ents = this._entities[targetDepth];
+    for (let i = 0; i < ents.length; i++) {
+      scheduler.add(ents[i], true);
+    }
+  }
+
+  unloadScheduler(entityList) {
+    scheduler.clear();
+  }
 // end of Game class definition
 };
+
 
 class Entity extends Glyph {
   constructor(settings, subsettings) {
@@ -297,6 +318,11 @@ class Entity extends Glyph {
     // for catching game loop
     // todo: add delay to show individual movement/action
     //  until rts
+    // todo: fix this
+    let game = this.game;
+    game.engine.lock();
+    console.log(this.name+'('+this.x+','+this.y+')');
+    game.engine.unlock();
   }
 
   tryPos(coord) {

@@ -91,11 +91,13 @@ APP_SETTINGS.viewData = {
       if (!this.state) {
         // passing view into game object for easier rendering
         this.state = new Game(this.main.settings.gameData, this);
-        this.state.makeWorld();
-        this.state.addEntity(this.state.player);
-        this.state.engine.start();
+        game = this.state;
+        game.makeWorld();
+        game.addEntity(this.state.player);
+        game.loadScheduler();
+        game.engine.start();
       } else {
-        console.log(this.state);
+        console.log(game);
       }
       this.render();
     },
