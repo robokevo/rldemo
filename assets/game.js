@@ -239,16 +239,25 @@ class Game {
   }
 
   getEntity(x,y,z) {
-    let ent = this.entities.filter(ent => 
-      ent.x === x &&
-      ent.y === y &&
-      ent.z === z)
-    if (ent[0]) {
-      ent = ent[0];
-    } else {
-      ent = false;
+    const entList = this.entities
+    //.filter(ent => 
+    //  
+    //  
+    //  
+    let result = false;
+    let ent;
+    for (let i = 0; i < entList.length; i++) {
+      ent = entList[0];
+      if (
+        ent.x === x &&
+        ent.y === y &&
+        ent.z === z) {
+        result = ent;
+        break;
+      }
+
     }
-    return ent;
+    return result;
   }
 
   loadScheduler(depth) {
@@ -318,7 +327,7 @@ class Entity extends Glyph {
     // for catching game loop
     // todo: add delay to show individual movement/action
     //  until rts
-    // todo: fix this
+    // todo: add range limit to avoid distant characters eating processor
     let game = this.game;
     game.engine.lock();
     console.log(this.name+'('+this.x+','+this.y+')');

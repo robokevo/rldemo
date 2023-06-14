@@ -85,7 +85,11 @@ APP_SETTINGS.viewData = {
       },
       t:  function(main) {
         console.log(main.view.state.player);
-      }
+      },
+      z:  function(main) {
+        const game = main.view.state;
+        console.log(game.entities.indexOf(game.player));
+      },
     },
     load: function() {
       if (!this.state) {
@@ -107,8 +111,6 @@ APP_SETTINGS.viewData = {
       const player = game.player;
       const main = this.main;
       // rendering game area
-      const gameWidth = game.width;
-      const gameHeight = game.height;
       const dHeight = main.displayHeight;
       const dWidth = main.displayWidth;
       const cursor = game.cursor;
@@ -225,31 +227,32 @@ APP_SETTINGS.gameData = {
         name: 'mushroom',
         char: '\u{1F344}',
         mobile: false,
-        speed:  50,
+        speed:  0,
         qty:  25,
       },
-      seedling: {
-        name: 'seedling',
-        char: '\u{1F331}',
+      mosquito: {
+        name: 'mosquito',
+        char: '\u{1F99F}',
         mobile: false,
-        speed:  0,
+        speed:  500,
         qty: 20,
+        fgColor: 'white',
       }
     },
     levelData: {
       0: {
-      mushroom: {
-        qty: 3,
-        },
-      seedling: {
-        qty: 4,
-        }
+        mushroom: {
+          qty: 3,
+          },
+        mosquito: {
+          qty: 4,
+          }
       },
       1: {
         mushroom: {
           qty: 5,
           },
-        seedling: {
+        mosquito: {
           qty: 6,
           }
       },
