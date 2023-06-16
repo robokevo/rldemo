@@ -104,8 +104,9 @@ class Game {
 
   // todo: align() to recenter after scroll, also scrolling
 
-  getTile(x, y, z) {
-    let newZ = z ?? this._currentDepth;
+  getTile(coord) {
+    const newZ = coord.z ?? this._currentDepth;
+    const [x, y] = [coord.x,coord.y];
     if (this._levels[newZ].contains(x,y)) {
       return this.level.getValue(x, y);
     } else {
@@ -113,24 +114,26 @@ class Game {
     }
   }
 
-  setTile(x, y, z, value) {
+  setTile(coord, value) {
+    const [x,y,z] = [coord.x,coord.y,coord.z]; 
     this._levels[z].setValue(x,y,value);
   }
 
   newTile(tileType) {
-    //to-do: level/biome support for varied tiles
+    //todo: level/biome support for varied tiles
     const newTile = new Tile(this._tiles[tileType]);
     return newTile;
   }
 
   destroyTile(tile) {
+    // todo: different destroyed tile 
     const newTile = new Tile(this._tiles[tile.destroyed]);
     newTile.x = tile.x;
     newTile.y = tile.y;
     newTile.z = tile.z;
     // todo: rend tile returns loot into newtile's loot function
     tile.rend();
-    this.setTile(newTile.x,newTile.y,newTile.z,newTile);
+    this.setTile(tile,newTile);
   }
 
   makeLevel(currentDepth) {
@@ -170,7 +173,6 @@ class Game {
     let allSettings = this.settings;
     let entitySettings = allSettings.entityData;
     let levelSettings;
-    console.log(entitySettings);
     for (let i = 0; i < this.depth; i++){
       levelSettings = entitySettings.levelData[i];
       if (levelSettings) {
@@ -180,7 +182,7 @@ class Game {
           let entDetails = levelSettings[entity];
           let instance;
           for (let k = 0; k < entDetails.qty; k++) {
-            instance = new Entity(this.settings, entitySettings.beastiary[entity]);
+            instance = new Entity(this.settings, entitySettings.bestiary[entity]);
             this.addEntity(instance, i);
           }
         }
@@ -196,34 +198,22 @@ class Game {
   }
 
   move(entity, coord) {
-    let newX = entity.x;
-    let newY = entity.y;
-    let newZ = entity.z;
-    
-    if (coord.x) {
-      newX += coord.x;
-    }
-    if (coord.y) {
-      newY += coord.y;
-    }
-    if (coord.z) {
-      newZ += coord.z;
-    }
-    if (this._levels[newZ].contains(newX,newY)) {
-      entity.x = newX;
-      entity.y = newY;
-      entity.z = newZ;
+    if (this._levels[coord.z].contains(coord.x,coord.y)) {
+      entity.x = coord.x;
+      entity.y = coord.y;
+      entity.z = coord.z;
       return true;
     }
   }
 
   freeTile(z) {
     let freeZ = z ?? this._currentDepth;
-    let freeX, freeY, freeTile;
-    while (!this.getTile(freeX,freeY,freeZ).passable) {
-      freeX = Math.floor(ROT.RNG.getUniform()*this.level.width);
-      freeY = Math.floor(ROT.RNG.getUniform()*this.level.height);
-      freeTile = this.getTile(freeX,freeY,freeZ);
+    let coord = {x:-1,y:-1,z:freeZ};
+    let freeTile;
+    while (!this.getTile(coord).passable) {
+      coord.x = Math.floor(ROT.RNG.getUniform()*this.level.width);
+      coord.y = Math.floor(ROT.RNG.getUniform()*this.level.height);
+      freeTile = this.getTile(coord);
     }
     return freeTile;
   }
@@ -238,16 +228,24 @@ class Game {
     this._entities[freeZ].push(entity);
   }
 
-  getEntity(x,y,z) {
+  isTileFree(coord) {
+    const coordCheck = this.getEntity(coord);
+    // todo: if entities are gaseous etc. implement passable
+    if (!coordCheck && this.getTile(coord).passable) {
+        return true;
+    }
+    return false;
+  }
+
+  getEntity(coord) {
+    const z = coord.z ?? this._currentDepth;
+    const [x, y] = [coord.x, coord.y];
+    //todo: does entities need to get moved to a grid or map object?
     const entList = this.entities
-    //.filter(ent => 
-    //  
-    //  
-    //  
     let result = false;
     let ent;
     for (let i = 0; i < entList.length; i++) {
-      ent = entList[0];
+      ent = entList[i];
       if (
         ent.x === x &&
         ent.y === y &&
@@ -293,6 +291,7 @@ class Entity extends Glyph {
     this._char = subsettings.char || '?';
     this._mobile = subsettings.mobile || false;
     this._speed = subsettings.speed || 0;
+    this._target = subsettings.target || false;
   }
 
   get name() {
@@ -310,6 +309,10 @@ class Entity extends Glyph {
   get mobile() {
     //todo: check for statuses to return otherwise
     return this._mobile;
+  }
+  
+  get target() {
+    return this._target;
   }
 
   getSpeed() {
@@ -336,27 +339,57 @@ class Entity extends Glyph {
 
   tryPos(coord) {
     const game = this.game;
-    let result = false;
-    let tile = game.getEntity(
-      this.x + coord.x,
-      this.y + coord.y,
-      this.z + coord.z);
-    if (!tile) {
-      tile = game.getTile(
-        this.x + coord.x,
-        this.y + coord.y,
-        this.z + coord.z);
-    }
-    if (tile.passable && this.mobile) { // tile.passable
-      //todo: also test for this.mobile to allow for immobilized actors
-      game.move(this, coord);
+    //let result = false;
+    //let tile = game.getEntity(
+    //  this.x + coord.x,
+    //  this.y + coord.y,
+    //  this.z + coord.z);
+    //if (!tile) {
+    //  tile = game.getTile(
+    //    this.x + coord.x,
+    //    this.y + coord.y,
+    //    this.z + coord.z);
+    //}
+    //if (tile.passable && this.mobile) { // tile.passable
+    //  //todo: also test for this.mobile to allow for immobilized actors
+    //  game.move(this, coord);
+    //  result = true;
+    coord.x = coord.x + this.x;
+    coord.y = coord.y + this.y;
+    coord.z = coord.z + this.z;
+    let result = game.isTileFree(coord);
+    if (result && this.mobile) {
+      game.move(this,coord);
       result = true;
-    } else if (tile.destructible) {
-      // todo: change to attack
-      game.destroyTile(tile);
-      result = true;
+      return result;
     }
-    return result;
+    const ent = game.getEntity(coord);
+    let tile;
+    if (!ent) {
+      tile = game.getTile(coord);
+      if (tile.destructible) {
+        game.destroyTile(tile);
+        result = true;
+        return result;
+      }
+    }
+    if (ent.target) {
+      console.log(ent);
+      return true;
+    }
+    //if (!result) {
+    //  entity = game.getEntity(coord);
+    //  console.log(entity);
+    //  return result;   
+    //}
+    //const tile  = game.getTile()
+    //if (tile.destructible) {
+    //  // todo: change to attack
+    //  game.destroyTile(tile);
+    //  result = true;
+    //}
+    //return result;
+    console.log('tryPos error');
   }
 }
 

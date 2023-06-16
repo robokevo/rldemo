@@ -127,7 +127,7 @@ APP_SETTINGS.viewData = {
       // todo: concat a row of glyphs and call drawText instead of individual calls
       for (let x = topLeftX; x < topLeftX + dWidth; x++) {
         for (let y = topLeftY; y < topLeftY + dHeight; y++) {
-          let tile = game.getTile(x, y);
+          let tile = game.getTile({x:x,y:y});
           display.draw(
           x - topLeftX,
           y - topLeftY,
@@ -155,7 +155,8 @@ APP_SETTINGS.viewData = {
         eX = entity.x;
         eY = entity.y;
         eZ = entity.z;
-        let tile = game.getTile(eX, eY);
+        // todo: save tile colors on entity's first move, show as defaults
+        let tile = game.getTile(entity);
         if (eX >= topLeftX && eY >= topLeftY
           && eX < topLeftX + dWidth
           && eY < topLeftY + dHeight){
@@ -222,11 +223,12 @@ APP_SETTINGS.gameData = {
   },
 
   entityData: {
-    beastiary: {
+    bestiary: {
       mushroom: {
         name: 'mushroom',
         char: '\u{1F344}',
         mobile: false,
+        target: true,
         speed:  0,
         qty:  25,
       },
@@ -237,6 +239,7 @@ APP_SETTINGS.gameData = {
         speed:  500,
         qty: 20,
         fgColor: 'white',
+        target: true,
       }
     },
     levelData: {
