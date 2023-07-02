@@ -88,7 +88,13 @@ APP_SETTINGS.viewData = {
       },
       z:  function(main) {
         const game = main.view.state;
-        console.log(game.entities.indexOf(game.player));
+        let [startXY, endXY] = [
+          {x: game.player.x - 1,
+           y: game.player.y - 1},
+          {x: game.player.x + 1,
+            y: game.player.y + 1},
+        ];
+        game.freeTile(startXY, endXY);
       },
     },
     load: function() {
@@ -186,8 +192,8 @@ APP_SETTINGS.gameData = {
     depth:        6,
     currentDepth: 0,
     levels:       [],
-    width:        60,
-    height:       100,
+    width:        48,
+    height:       30,
 
   },
   glyphData: {
@@ -220,6 +226,7 @@ APP_SETTINGS.gameData = {
     char: '\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
     mobile: true,
     speed:  100,
+    basePower: 3,
   },
 
   entityData: {
@@ -231,6 +238,7 @@ APP_SETTINGS.gameData = {
         target: true,
         speed:  0,
         qty:  25,
+        hp: 2,
       },
       mosquito: {
         name: 'mosquito',
@@ -240,6 +248,7 @@ APP_SETTINGS.gameData = {
         qty: 20,
         fgColor: 'white',
         target: true,
+        hp: 1,
       }
     },
     levelData: {

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "cctut",
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "cctut"
+	}
+}

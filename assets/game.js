@@ -102,7 +102,22 @@ class Game {
     return this._engine;
   }
 
+  get scheduler() {
+    return this._scheduler;
+  }
+
   // todo: align() to recenter after scroll, also scrolling
+  getRandom() {
+    // pseudorandom generator that works from seed number
+    // comparable to Math.random()
+    return ROT.RNG.getUniform();
+  }
+
+  getRandomInt(lower, upper) {
+    // pseudorandom generator that works from seed number
+    // for int in range of lower to upper (inclusive)
+    return ROT.RNG.getUniformInt(lower, upper);
+  }
 
   getTile(coord) {
     const newZ = coord.z ?? this._currentDepth;
@@ -139,8 +154,8 @@ class Game {
   makeLevel(currentDepth) {
     let depth = currentDepth || 0;
     const generator = new ROT.Map.Cellular(this.width,this.height);
-    generator.randomize(0.6);
-    const iterations = 2;
+    generator.randomize(0.5);
+    const iterations = 1;
     // every iteration smoothens map
     for (let i = 0; i < iterations; i++){
       generator.create();
@@ -149,9 +164,10 @@ class Game {
     // iterate one last time to write to map
     // have to call this locally to be accessed within generator
     let game = this;
+    generator.connect();
     generator.create(function(x,y,v){
       let newTile;
-      if (v === 1) {
+      if (v === 0) {
         newTile = new Tile(game._tiles['floor']);
         newTile.x = x;
         newTile.y = y;
@@ -206,16 +222,62 @@ class Game {
     }
   }
 
-  freeTile(z) {
-    let freeZ = z ?? this._currentDepth;
-    let coord = {x:-1,y:-1,z:freeZ};
-    let freeTile;
-    while (!this.getTile(coord).passable) {
-      coord.x = Math.floor(ROT.RNG.getUniform()*this.level.width);
-      coord.y = Math.floor(ROT.RNG.getUniform()*this.level.height);
-      freeTile = this.getTile(coord);
+  freeTile(startXY, endXY) {
+    // if start/end supplied, finds a random free tile in range, otherwise
+    // finds a random free tile throughout the entire map, minus a small
+    // buffer to keep spawns from edges
+    let buffer, xOffset, yOffset, width, height, freeTile;
+    if (startXY && endXY) {
+      buffer = 0;
+      xOffset = startXY.x;
+      yOffset = startXY.y;
+      width = endXY.x - startXY.x;
+      height = endXY.y - startXY.y;
+    } else {
+      buffer = 5;
+      xOffset = 0;
+      yOffset = 0;
+      width = this.level.width;
+      height = this.level.height;
     }
-    return freeTile;
+    // start with invalid coord to start search; valid depth needed or error
+    let coord = {x:-1,y:-1,z:this._currentDepth};
+    if ((xOffset === 0) && (yOffset === 0) &&
+      (width === this.level.width) && (height === this.level.height)) {
+      // warning: can hang if no valid target found
+      // this method only used when placing through whole map
+      while (!this.isTileFree(coord)) {
+        coord.x = Math.floor(this.getRandom() * width);
+        if ((coord.x > (width - buffer)) || (coord.x <= buffer)) {
+          coord.x = -1;
+        }
+        coord.y = Math.floor(this.getRandom() * height);
+        if ((coord.y > (height - buffer)) || (coord.y <= buffer)) {
+          coord.y = -1;
+        }
+        freeTile = this.getTile(coord);
+      }
+      return freeTile;
+    } else {
+      const freeTiles = [];
+      let coord, choice;
+      for (let i = xOffset; i <= xOffset + width; i++) {
+        for (let j = yOffset; j <= yOffset + height; j++) {
+          coord = {x: i, y: j};
+          let free = this.isTileFree(coord)
+          if (free){
+            freeTiles.push(coord);
+          }
+        }
+      }
+      if (freeTiles.length > 0) {
+        choice = this.getRandomInt(0, freeTiles.length - 1);
+        console.log(this.getTile(freeTiles[choice]));
+      } else {
+        return false;
+      }
+    }
+
   }
 
   addEntity(entity,z) {
@@ -258,6 +320,22 @@ class Game {
     return result;
   }
 
+  removeEntity(entity) {
+    let entities = this.entities;
+    let ent;
+    for (let i = 0; i < entities.length; i++) {
+      ent = entities[i];
+      if (ent===entity) {
+        if (entity.actor) {
+          this.scheduler.remove(entity);
+        }
+        entity.expire();
+        entities.splice(i,1);
+        break
+      }
+    }
+  }
+
   loadScheduler(depth) {
     // loads ROT scheduler with list of entities; entities need .act() to
     //  lock and unlock engine plus getSpeed() for speed scheduler
@@ -267,15 +345,19 @@ class Game {
     //  floors active. may need dumbed down actions if so or perf will tank
     //  or only special monsters can avoid getting removed from scheduler
     const targetDepth = depth ?? this._currentDepth;
-    const scheduler = this._scheduler;
+    const scheduler = this.scheduler;
     const ents = this._entities[targetDepth];
+    let ent;
     for (let i = 0; i < ents.length; i++) {
-      scheduler.add(ents[i], true);
+      ent = ents[i];
+      if (ent.actor) {
+        scheduler.add(ents[i], true);
+      }
     }
   }
 
-  unloadScheduler(entityList) {
-    scheduler.clear();
+  unloadScheduler() {
+    this.scheduler.clear();
   }
 // end of Game class definition
 };
@@ -286,12 +368,16 @@ class Entity extends Glyph {
     super(settings);
     this._game = settings.game;
     this._player = false;
-    // todo: separate player class to avoid this hackiness
+    this._actor = subsettings.actor || true;
     this._name = subsettings.name || 'new buddy';
     this._char = subsettings.char || '?';
     this._mobile = subsettings.mobile || false;
     this._speed = subsettings.speed || 0;
     this._target = subsettings.target || false;
+    // todo: calculate hp based on con type stat
+    this._MaxHp = subsettings.MaxHp || 5;
+    this._hp = subsettings.hp || this._MaxHp;
+    this._basePower = subsettings.basePower || 2;
   }
 
   get name() {
@@ -306,6 +392,27 @@ class Entity extends Glyph {
     return this._game;
   }
 
+  get actor() {
+    return this._actor; 
+  } 
+
+  get atkPower() {
+    // todo: figure in stats + equipment
+    return this.basePower;
+  }
+
+  get basePower() {
+    return this._basePower;
+  }
+
+  get hp() {
+    return this._hp;
+  }
+
+  set hp(value) {
+    this._hp = value;
+  }  
+
   get mobile() {
     //todo: check for statuses to return otherwise
     return this._mobile;
@@ -317,6 +424,8 @@ class Entity extends Glyph {
 
   getSpeed() {
     // this method is required by ROT speed scheduler
+    // todo: own .speed attribute for internal use to keep convention
+    //   that this can point to
     return this._speed;
   }
 
@@ -335,6 +444,40 @@ class Entity extends Glyph {
     game.engine.lock();
     console.log(this.name+'('+this.x+','+this.y+')');
     game.engine.unlock();
+  }
+
+  attack(target) {
+    // todo: miss chance based on speed
+    const damage = Math.max(Math.round(this.atkPower/2),Math.round(
+      this.game.getRandom()*this.atkPower));
+    console.log(damage);
+    target.takeDamage(damage);
+  }
+
+  takeDamage(value) {
+    //todo: factor in buffs
+    this.changeHP(-value);
+  }
+
+  healDamage(value) {
+    //todo: factor in buffs
+    this.changeHP(value);
+  }
+
+  changeHP(value) {
+      this.hp = this.hp + value;
+      if (this.hp <= 0) {
+        this.expire();
+        this.game.removeEntity(this);
+      }
+  }
+
+  drop(item) {
+
+  }
+
+  expire() {
+    console.log(this.name + ' has expired!');
   }
 
   tryPos(coord) {
@@ -374,21 +517,10 @@ class Entity extends Glyph {
       }
     }
     if (ent.target) {
-      console.log(ent);
+      this.attack(ent);
       return true;
     }
-    //if (!result) {
-    //  entity = game.getEntity(coord);
-    //  console.log(entity);
-    //  return result;   
-    //}
-    //const tile  = game.getTile()
-    //if (tile.destructible) {
-    //  // todo: change to attack
-    //  game.destroyTile(tile);
-    //  result = true;
-    //}
-    //return result;
+
     console.log('tryPos error');
   }
 }
