@@ -15,7 +15,7 @@ class Entity extends Glyph {
     this._hp = subsettings.hp || this._MaxHp;
     this._basePower = subsettings.basePower || 2;
     this._spreader = subsettings.spreader || false;
-    this._baseSpreadRate = subsettings.baseSpreadRate || 0;
+    this._spreadRate = subsettings.spreadRate || 0;
     this._spreadRange = subsettings.spreadRange || 0;
     this._offspring = subsettings.offspring || 0;
   }
@@ -32,10 +32,6 @@ class Entity extends Glyph {
 
   get basePower() {
     return this._basePower;
-  }
-
-  get baseSpread() {
-    return this._baseSpread;
   }
 
   get game() {
@@ -76,7 +72,7 @@ class Entity extends Glyph {
   }
 
   get spreadRate() {
-    return this._baseSpreadRate;
+    return this._spreadRate;
   }
 
   get spreadRange() {

@@ -241,7 +241,7 @@ APP_SETTINGS.gameData = {
         speed:  0,
         hp: 2,
         spreader: true,
-        baseSpreadRate: .01,
+        spreadRate: .01,
         spreadRange: 1,
         offspring:  1,
       },
