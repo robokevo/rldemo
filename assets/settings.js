@@ -86,15 +86,13 @@ APP_SETTINGS.viewData = {
       t:  function(main) {
         console.log(main.view.state.player);
       },
+      x:  function(main) {
+        const game = main.view.state;
+        console.log(game.getRandom());
+      },
       z:  function(main) {
         const game = main.view.state;
-        let [startXY, endXY] = [
-          {x: game.player.x - 1,
-           y: game.player.y - 1},
-          {x: game.player.x + 1,
-            y: game.player.y + 1},
-        ];
-        game.freeTile(startXY, endXY);
+        game.freeTileInRadius(game.player,2);
       },
     },
     load: function() {
@@ -109,7 +107,11 @@ APP_SETTINGS.viewData = {
       } else {
         console.log(game);
       }
+      game.unpause();
       this.render();
+    },
+    unload: function() {
+      this.state.pause();
     },
     render: function() {
       const display = this.display;
@@ -237,15 +239,26 @@ APP_SETTINGS.gameData = {
         mobile: false,
         target: true,
         speed:  0,
-        qty:  25,
         hp: 2,
+        spreader: true,
+        baseSpreadRate: .01,
+        spreadRange: 1,
+        offspring:  1,
       },
       mosquito: {
         name: 'mosquito',
         char: '\u{1F99F}',
         mobile: false,
         speed:  500,
-        qty: 20,
+        fgColor: 'white',
+        target: true,
+        hp: 1,
+      },
+      bat: {
+        name: 'bat',
+        char: '\u{1F987}',
+        mobile: false,
+        speed:  200,
         fgColor: 'white',
         target: true,
         hp: 1,
@@ -254,10 +267,13 @@ APP_SETTINGS.gameData = {
     levelData: {
       0: {
         mushroom: {
-          qty: 3,
+          qty: 1,
           },
         mosquito: {
-          qty: 4,
+          qty: 1,
+          },
+        bat: {
+          qty: 1,
           }
       },
       1: {

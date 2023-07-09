@@ -15,6 +15,9 @@ class Game {
     this._levels = settings.worldData.levels;
     this._width = settings.worldData.width;
     this._height = settings.worldData.height;
+    // start paused to do game setup, then pause/unpause
+    // when toggling in and out of game screen
+    this._paused = true;
     // todo: specific tiles for biomes
     this._tiles = settings.tileData;
     this._noTile = new Tile(this._tiles['none']);
@@ -55,6 +58,20 @@ class Game {
 
   get depth() {
     return this._depth;
+  }
+
+  get paused() {
+    return this._paused;
+  }
+
+  get currentDepth() {
+    // sets working depth of game object
+    return this._currentDepth;
+  }
+
+  set currentDepth(newDepth) {
+    // sets working depth of game object
+    this._currentDepth = newDepth;
   }
 
   // for centering play area on target display area
@@ -106,38 +123,43 @@ class Game {
     return this._scheduler;
   }
 
-  // todo: align() to recenter after scroll, also scrolling
-  getRandom() {
-    // pseudorandom generator that works from seed number
-    // comparable to Math.random()
-    return ROT.RNG.getUniform();
-  }
-
-  getRandomInt(lower, upper) {
-    // pseudorandom generator that works from seed number
-    // for int in range of lower to upper (inclusive)
-    return ROT.RNG.getUniformInt(lower, upper);
-  }
-
-  getTile(coord) {
-    const newZ = coord.z ?? this._currentDepth;
-    const [x, y] = [coord.x,coord.y];
-    if (this._levels[newZ].contains(x,y)) {
-      return this.level.getValue(x, y);
+  addEntity(entity,coord) {
+    //todo: check for entity as well as free tile
+    if (!coord) {
+      let freeXYZ = this.freeTile();
+      entity.x = freeXYZ.x;
+      entity.y = freeXYZ.y;
+      entity.z = freeXYZ.z;
     } else {
-      return this.noTile;
+      entity.x = coord.x;
+      entity.y = coord.y;
+      entity.z = coord.z;
+    }
+    this.entities.push(entity);
+    if (!this.paused) {
+      this.scheduler.add(entity, true);
     }
   }
 
-  setTile(coord, value) {
-    const [x,y,z] = [coord.x,coord.y,coord.z]; 
-    this._levels[z].setValue(x,y,value);
-  }
+  getEntity(coord) {
+    const z = coord.z ?? this._currentDepth;
+    const [x, y] = [coord.x, coord.y];
+    //todo: does entities need to get moved to a grid or map object?
+    const entList = this.entities
+    let result = false;
+    let ent;
+    for (let i = 0; i < entList.length; i++) {
+      ent = entList[i];
+      if (
+        ent.x === x &&
+        ent.y === y &&
+        ent.z === z) {
+        result = ent;
+        break;
+      }
 
-  newTile(tileType) {
-    //todo: level/biome support for varied tiles
-    const newTile = new Tile(this._tiles[tileType]);
-    return newTile;
+    }
+    return result;
   }
 
   destroyTile(tile) {
@@ -151,76 +173,13 @@ class Game {
     this.setTile(tile,newTile);
   }
 
-  makeLevel(currentDepth) {
-    let depth = currentDepth || 0;
-    const generator = new ROT.Map.Cellular(this.width,this.height);
-    generator.randomize(0.5);
-    const iterations = 1;
-    // every iteration smoothens map
-    for (let i = 0; i < iterations; i++){
-      generator.create();
-    }
-    const newLevel = new Grid(this.width, this.height);
-    // iterate one last time to write to map
-    // have to call this locally to be accessed within generator
-    let game = this;
-    generator.connect();
-    generator.create(function(x,y,v){
-      let newTile;
-      if (v === 0) {
-        newTile = new Tile(game._tiles['floor']);
-        newTile.x = x;
-        newTile.y = y;
-        newTile.z = currentDepth;
-        newLevel.setValue(x,y,newTile);
-      } else {
-        newTile = new Tile(game._tiles['wall']);
-        newTile.x = x;
-        newTile.y = y;
-        newTile.z = currentDepth;
-        newLevel.setValue(x,y,newTile);
-      }
-
-    });
-    this._levels[depth] = newLevel;
+  freeTileInRadius(coord, radius) {
+    // returns a random free tile within radius
+    const startXY = {x: coord.x - radius, y: coord.y - radius};
+    const endXY = {x: coord.x + radius, y: coord.y + radius};
+    return this.freeTile(startXY, endXY);
   }
-
-  populateLevels() {
-    let allSettings = this.settings;
-    let entitySettings = allSettings.entityData;
-    let levelSettings;
-    for (let i = 0; i < this.depth; i++){
-      levelSettings = entitySettings.levelData[i];
-      if (levelSettings) {
-        let entities = Object.keys(levelSettings);
-        for (let j = 0; j < entities.length; j++) {
-          let entity = entities[j];
-          let entDetails = levelSettings[entity];
-          let instance;
-          for (let k = 0; k < entDetails.qty; k++) {
-            instance = new Entity(this.settings, entitySettings.bestiary[entity]);
-            this.addEntity(instance, i);
-          }
-        }
-      }
-    }
-  }
-
-  makeWorld() {
-    for (let i = 0; i < this.depth; i++) {
-      this.makeLevel(i);
-    }
-    this.populateLevels();
-  }
-
-  move(entity, coord) {
-    if (this._levels[coord.z].contains(coord.x,coord.y)) {
-      entity.x = coord.x;
-      entity.y = coord.y;
-      entity.z = coord.z;
-      return true;
-    }
-  }
+  
 
   freeTile(startXY, endXY) {
     // if start/end supplied, finds a random free tile in range, otherwise
@@ -272,22 +231,34 @@ class Game {
       }
       if (freeTiles.length > 0) {
         choice = this.getRandomInt(0, freeTiles.length - 1);
-        console.log(this.getTile(freeTiles[choice]));
+        return this.getTile(freeTiles[choice]);
       } else {
         return false;
       }
     }
 
   }
+  
+  getTile(coord) {
+    const newZ = coord.z ?? this._currentDepth;
+    const [x, y] = [coord.x,coord.y];
+    if (this._levels[newZ].contains(x,y)) {
+      return this.level.getValue(x, y);
+    } else {
+      return this.noTile;
+    }
+  }
 
-  addEntity(entity,z) {
-    //todo: check for entity as well as free tile
-    let freeZ = z ?? this._currentDepth;
-    const freeXYZ = this.freeTile(freeZ);
-    entity.x = freeXYZ.x;
-    entity.y = freeXYZ.y;
-    entity.z = freeXYZ.z;
-    this._entities[freeZ].push(entity);
+  getRandom() {
+    // pseudorandom generator that works from seed number
+    // comparable to Math.random()
+    return ROT.RNG.getUniform();
+  }
+
+  getRandomInt(lower, upper) {
+    // pseudorandom generator that works from seed number
+    // for int in range of lower to upper (inclusive)
+    return ROT.RNG.getUniformInt(lower, upper);
   }
 
   isTileFree(coord) {
@@ -297,43 +268,6 @@ class Game {
         return true;
     }
     return false;
-  }
-
-  getEntity(coord) {
-    const z = coord.z ?? this._currentDepth;
-    const [x, y] = [coord.x, coord.y];
-    //todo: does entities need to get moved to a grid or map object?
-    const entList = this.entities
-    let result = false;
-    let ent;
-    for (let i = 0; i < entList.length; i++) {
-      ent = entList[i];
-      if (
-        ent.x === x &&
-        ent.y === y &&
-        ent.z === z) {
-        result = ent;
-        break;
-      }
-
-    }
-    return result;
-  }
-
-  removeEntity(entity) {
-    let entities = this.entities;
-    let ent;
-    for (let i = 0; i < entities.length; i++) {
-      ent = entities[i];
-      if (ent===entity) {
-        if (entity.actor) {
-          this.scheduler.remove(entity);
-        }
-        entity.expire();
-        entities.splice(i,1);
-        break
-      }
-    }
   }
 
   loadScheduler(depth) {
@@ -356,182 +290,124 @@ class Game {
     }
   }
 
+  makeLevel(currentDepth) {
+    let depth = currentDepth || 0;
+    const generator = new ROT.Map.Cellular(this.width,this.height);
+    generator.randomize(0.5);
+    const iterations = 1;
+    // every iteration smoothens map
+    for (let i = 0; i < iterations; i++){
+      generator.create();
+    }
+    const newLevel = new Grid(this.width, this.height);
+    // iterate one last time to write to map
+    // have to call this locally to be accessed within generator
+    let game = this;
+    generator.connect();
+    generator.create(function(x,y,v){
+      let newTile;
+      if (v === 0) {
+        newTile = new Tile(game._tiles['floor']);
+        newTile.x = x;
+        newTile.y = y;
+        newTile.z = currentDepth;
+        newLevel.setValue(x,y,newTile);
+      } else {
+        newTile = new Tile(game._tiles['wall']);
+        newTile.x = x;
+        newTile.y = y;
+        newTile.z = currentDepth;
+        newLevel.setValue(x,y,newTile);
+      }
+
+    });
+    this._levels[depth] = newLevel;
+  }
+
+  makeWorld() {
+    for (let i = 0; i < this.depth; i++) {
+      this.makeLevel(i);
+    }
+    this.populateLevels();
+  }
+
+  move(entity, coord) {
+    if (this._levels[coord.z].contains(coord.x,coord.y)) {
+      entity.x = coord.x;
+      entity.y = coord.y;
+      entity.z = coord.z;
+      return true;
+    }
+  }
+
+  newEntity(name, target) {
+    // todo: secondary settings for configuring base entity from emoji
+    const ent = new Entity(
+      this.settings,
+      this.settings.entityData.bestiary[name]
+      );
+    this.addEntity(ent, target);
+  }
+
+  newTile(tileType) {
+    //todo: level/biome support for varied tiles
+    const newTile = new Tile(this._tiles[tileType]);
+    return newTile;
+  }
+
+  populateLevels() {
+    let allSettings = this.settings;
+    let entitySettings = allSettings.entityData;
+    let levelSettings;
+    for (let i = 0; i < this.depth; i++){
+      this.currentDepth = i;
+      levelSettings = entitySettings.levelData[i];
+      if (levelSettings) {
+        let entities = Object.keys(levelSettings);
+        for (let j = 0; j < entities.length; j++) {
+          let entity = entities[j];
+          let entDetails = levelSettings[entity];
+          let instance;
+          for (let k = 0; k < entDetails.qty; k++) {
+            instance = new Entity(this.settings, entitySettings.bestiary[entity]);
+            this.addEntity(instance);
+          }
+        }
+      }
+    }
+    this.currentDepth = this.settings.worldData.currentDepth;
+  }
+
+  pause() {
+    this._paused = true;
+  }
+
+  removeEntity(entity) {
+    let entities = this.entities;
+    let ent;
+    for (let i = 0; i < entities.length; i++) {
+      ent = entities[i];
+      if (ent===entity) {
+        if (entity.actor) {
+          this.scheduler.remove(entity);
+        };
+        entities.splice(i,1);
+        break
+      }
+    }
+  }  
+  
+  setTile(coord, value) {
+    const [x,y,z] = [coord.x,coord.y,coord.z]; 
+    this._levels[z].setValue(x,y,value);
+  }
+
   unloadScheduler() {
     this.scheduler.clear();
   }
+
+  unpause() {
+    this._paused = false;
+  }
 // end of Game class definition
 };
-
-
-class Entity extends Glyph {
-  constructor(settings, subsettings) {
-    super(settings);
-    this._game = settings.game;
-    this._player = false;
-    this._actor = subsettings.actor || true;
-    this._name = subsettings.name || 'new buddy';
-    this._char = subsettings.char || '?';
-    this._mobile = subsettings.mobile || false;
-    this._speed = subsettings.speed || 0;
-    this._target = subsettings.target || false;
-    // todo: calculate hp based on con type stat
-    this._MaxHp = subsettings.MaxHp || 5;
-    this._hp = subsettings.hp || this._MaxHp;
-    this._basePower = subsettings.basePower || 2;
-  }
-
-  get name() {
-    return this._name;
-  }
-
-  set name(newName) {
-    this._name = newName;
-  }
-
-  get game() {
-    return this._game;
-  }
-
-  get actor() {
-    return this._actor; 
-  } 
-
-  get atkPower() {
-    // todo: figure in stats + equipment
-    return this.basePower;
-  }
-
-  get basePower() {
-    return this._basePower;
-  }
-
-  get hp() {
-    return this._hp;
-  }
-
-  set hp(value) {
-    this._hp = value;
-  }  
-
-  get mobile() {
-    //todo: check for statuses to return otherwise
-    return this._mobile;
-  }
-  
-  get target() {
-    return this._target;
-  }
-
-  getSpeed() {
-    // this method is required by ROT speed scheduler
-    // todo: own .speed attribute for internal use to keep convention
-    //   that this can point to
-    return this._speed;
-  }
-
-  setPos(coord) {
-    this._pos.x = coord.x ?? this._pos.x;
-    this._pos.y = coord.y ?? this._pos.y;
-    this._pos.z = coord.z ?? this._pos.z;
-  }
-
-  act() {
-    // for catching game loop
-    // todo: add delay to show individual movement/action
-    //  until rts
-    // todo: add range limit to avoid distant characters eating processor
-    let game = this.game;
-    game.engine.lock();
-    console.log(this.name+'('+this.x+','+this.y+')');
-    game.engine.unlock();
-  }
-
-  attack(target) {
-    // todo: miss chance based on speed
-    const damage = Math.max(Math.round(this.atkPower/2),Math.round(
-      this.game.getRandom()*this.atkPower));
-    console.log(damage);
-    target.takeDamage(damage);
-  }
-
-  takeDamage(value) {
-    //todo: factor in buffs
-    this.changeHP(-value);
-  }
-
-  healDamage(value) {
-    //todo: factor in buffs
-    this.changeHP(value);
-  }
-
-  changeHP(value) {
-      this.hp = this.hp + value;
-      if (this.hp <= 0) {
-        this.expire();
-        this.game.removeEntity(this);
-      }
-  }
-
-  drop(item) {
-
-  }
-
-  expire() {
-    console.log(this.name + ' has expired!');
-  }
-
-  tryPos(coord) {
-    const game = this.game;
-    //let result = false;
-    //let tile = game.getEntity(
-    //  this.x + coord.x,
-    //  this.y + coord.y,
-    //  this.z + coord.z);
-    //if (!tile) {
-    //  tile = game.getTile(
-    //    this.x + coord.x,
-    //    this.y + coord.y,
-    //    this.z + coord.z);
-    //}
-    //if (tile.passable && this.mobile) { // tile.passable
-    //  //todo: also test for this.mobile to allow for immobilized actors
-    //  game.move(this, coord);
-    //  result = true;
-    coord.x = coord.x + this.x;
-    coord.y = coord.y + this.y;
-    coord.z = coord.z + this.z;
-    let result = game.isTileFree(coord);
-    if (result && this.mobile) {
-      game.move(this,coord);
-      result = true;
-      return result;
-    }
-    const ent = game.getEntity(coord);
-    let tile;
-    if (!ent) {
-      tile = game.getTile(coord);
-      if (tile.destructible) {
-        game.destroyTile(tile);
-        result = true;
-        return result;
-      }
-    }
-    if (ent.target) {
-      this.attack(ent);
-      return true;
-    }
-
-    console.log('tryPos error');
-  }
-}
-
-class Player extends Entity {
-  constructor(settings, subsettings) {
-    super(settings, subsettings);
-    this._player = true;
-  }
-
-  act() {
-    this.game.engine.lock();
-  }
-}
