@@ -229,7 +229,7 @@ APP_SETTINGS.viewData = {
         }
       },
       sidebar1: {
-        name: "sidebar",
+        name: "Player",
         order:  1,
         origin: {
           x: 0,
@@ -261,13 +261,28 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x + 2, origin.y, name);
           display.draw(origin.x, origin.y, player.char, null, bg);
           display.drawText(origin.x, origin.y + 1,
+            fg + '%b{' + view.bgColor + '}' + `Hungry`
+          );
+          display.drawText(origin.x, origin.y + 3,
             fg + '%b{' + view.bgColor + '}' + `HP:${player.hp}\/${player.maxHp}`
+          );
+          display.drawText(origin.x, origin.y + 4,
+            fg + '%b{' + view.bgColor + '}' + `Energy:100`
+          );
+          display.drawText(origin.x, origin.y + 5,
+            fg + '%b{' + view.bgColor + '}' + `Attack:${player.atkPower}`
+          );
+          display.drawText(origin.x, origin.y + 6,
+            fg + '%b{' + view.bgColor + '}' + `Defense:${player.defense}`
+          );
+          display.drawText(origin.x, origin.y + 7,
+            fg + '%b{' + view.bgColor + '}' + `Eqp.:`
           );
         }
       // end of sidebar1
       },
       sidebar2: {
-        name: "sidebar",
+        name: "Info",
         order:  1,
         origin: {
           x: 0,
