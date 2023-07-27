@@ -36,7 +36,13 @@ class newApp {
       this._displayHeight = appSettings.startHeight || 20;
       this._display = new ROT.Display({
         width: this._displayWidth,
-        height: this._displayHeight
+        height: this._displayHeight,
+        //spacing: .95,
+        forceSquareRatio: true,
+        fontStyle: 'bold',
+        fontSize: '12',
+        //does this work?
+        //textAlign: 'right',
       });
       this._viewData = settings.viewData;
       //this._vHandler = new ViewHandler(this);
@@ -47,7 +53,11 @@ class newApp {
       let views = Object.keys(this._viewData);
       // reads through view data, instantiates view objects from settings
       for (const v in views){
+        const panelData = this._viewData[views[v]].panels;
         view = new View(this._viewData[views[v]], this);
+        if (panelData) {
+          view.setPanels(panelData);
+        }
         this._views[views[v]] = view;
         this._store[views[v]] = null;
       }
@@ -63,7 +73,7 @@ class newApp {
       this._lastInputTime = 0;
       // to-do: input log for combos
       } else {
-      window.alert('oops, refresh the page pls');
+      window.alert('Big Ope: no settings detected. Plz refresh the page pls');
     }
   }
 
@@ -86,12 +96,6 @@ class newApp {
   attach() {
     // inserts canvas element into designated div
     this._appTarget.appendChild(this._container);
-  }
-
-  parseInput(event, eType) {
-    if (eType === 'keydown') {
-      this.vHandler.parseInput(event, eType);
-    }
   }
 
   getView(viewName) {

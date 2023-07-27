@@ -11,13 +11,16 @@ class Entity extends Glyph {
     this._speed = subsettings.speed || 0;
     this._target = subsettings.target || false;
     // todo: calculate hp based on con type stat
-    this._MaxHp = subsettings.MaxHp || 5;
-    this._hp = subsettings.hp || this._MaxHp;
+    this._maxHp = subsettings.maxHp || 5;
+    this._hp = subsettings.hp || this._maxHp;
     this._basePower = subsettings.basePower || 2;
+    this._baseDefense = subsettings.baseDefense || 0;
     this._spreader = subsettings.spreader || false;
     this._spreadRate = subsettings.spreadRate || 0;
     this._spreadRange = subsettings.spreadRange || 0;
     this._offspring = subsettings.offspring || 0;
+    this._messages = subsettings.messages || [];
+    this._hearing = subsettings.hearing || true;
   }
 
   get actor() {
@@ -34,9 +37,25 @@ class Entity extends Glyph {
     return this._basePower;
   }
 
+  get baseDefense() {
+    return this._baseDefense;
+  }
+
+  get defense() {
+    // returns defense value including base defense plus
+    // (eventually) equipment defense etc.
+    return this.baseDefense;
+  }
+
   get game() {
     // returns encapsulating game object for context
     return this._game;
+  }
+
+  get hearing() {
+    // returns if this entity is capable of hearing
+    // todo: status effects
+    return this._hearing;
   }
 
   get hp() {
@@ -47,9 +66,17 @@ class Entity extends Glyph {
     this._hp = value;
   }  
 
+  get maxHp() {
+    return this._maxHp;
+  }
+
   get mobile() {
     //todo: check for statuses to return otherwise
     return this._mobile;
+  }
+
+  get messages() {
+    return this._messages;
   }
 
   get name() {
@@ -65,6 +92,10 @@ class Entity extends Glyph {
 
   get offspring() {
     return this._offspring;
+  }
+
+  get player() {
+    return this._player;
   }
 
   get spreader() {
@@ -92,23 +123,50 @@ class Entity extends Glyph {
     // todo: add delay to show individual movement/action
     //  until rts
     // todo: add range limit to avoid distant characters eating processor
-    let game = this.game;
+    const game = this.game;
     game.engine.lock();
-    console.log(this.name+'('+this.x+','+this.y+')');
+    //console.log(this.name+'('+this.x+','+this.y+')');
     if (this.spreader) {
       this.spread();
     }
     game.engine.unlock();
   }
 
+  announce(message, radius) {
+    this.game.sendMessage(message, this, radius);
+  }
+  
+
   attack(target) {
     // todo: miss chance based on speed
-    const damage = Math.max(
-      Math.round(this.atkPower / 2),
-      Math.round(this.game.getRandom() * this.atkPower)
+    const game = this.game;
+    let hit = false;
+    let message, damage;
+    if (game.getRandom() > 0.2) {
+      hit = true;
+    }
+    // todo: damage types, buffs
+    if (hit) {
+      damage = 
+      Math.round(
+        (100 - target.defense)/100 *
+        Math.max(
+          Math.round(this.atkPower / 2),
+          Math.round(this.game.getRandom() * this.atkPower)
+        )
       );
-    console.log(damage);
-    target.takeDamage(damage);
+      if (damage > 0) {
+        message = `You hit the ${target.name} for ${damage} damage!`;
+      } else {
+        message = `You didn't scratch the ${target.name}!`;
+      }
+    } else {
+      message = `You missed the ${target.name}!`;
+    }
+    this.announce(message, 5);
+    if (damage) {
+      target.takeDamage(damage);
+    }
   }
 
   changeHP(value) {
@@ -124,7 +182,10 @@ class Entity extends Glyph {
   }
 
   expire() {
-    console.log(this.name + ' has expired!');
+    // todo: drops
+    // todo: fold expiration message into attack message, announce at once
+    const messsage = `The ${this.name} has expired!`;
+    this.announce(messsage, 5);
   }
 
   getSpeed() {
@@ -133,10 +194,17 @@ class Entity extends Glyph {
     //   that this can point to
     return this._speed;
   }
-  
+
   healDamage(value) {
     //todo: factor in buffs
     this.changeHP(value);
+  }
+
+  receiveMessage(msg) {
+    //if (this.player) {
+    //  console.log(msg);
+    //}
+    this._messages.push(msg);
   }
 
   setPos(coord) {
@@ -152,7 +220,8 @@ class Entity extends Glyph {
     const spreadRate = this.spreadRate;
     const attempt = game.getRandom();
     if (spreadRate >= attempt) {
-      const target = game.freeTileInRadius(this, spreadRange);
+      const range = this.rangePoints(spreadRange);
+      const target = game.freeTile(range[0], range[1]);
       if (target && this.offspring > 0) {
         game.newEntity(this.type, target);
         this._offspring--;
@@ -191,8 +260,7 @@ class Entity extends Glyph {
       this.attack(ent);
       return true;
     }
-
-    console.log('tryPos error');
+    return false;
   }
 }
 

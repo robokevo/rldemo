@@ -1,18 +1,10 @@
 class Game {
   constructor(settings) {
-    //let settings;// = newSettings;
-    //if (!settings) {
-    //  settings = {};
-    //  settings.depth = 3;
-    //  settings.currentDepth = 0;
-    //  settings.levels = [];
-    //  settings.width = 100;
-    //  settings.height = 100;
-    //}
+    // todo: abstract out to universe that holds worlds with discrete stages
     settings.game = this;
     this._settings = settings;
     this._depth = settings.worldData.depth;
-    this._levels = settings.worldData.levels;
+    this._stage = settings.worldData.stages;
     this._width = settings.worldData.width;
     this._height = settings.worldData.height;
     // start paused to do game setup, then pause/unpause
@@ -22,7 +14,7 @@ class Game {
     this._tiles = settings.tileData;
     this._noTile = new Tile(this._tiles['none']);
     this._currentDepth = settings.worldData.currentDepth || 0;
-    this._levels[this._currentDepth] = new Grid(this._width,this._height);
+    this._stage[this._currentDepth] = new Grid(this._width,this._height);
     // todo: for centering play area; will eventually center on player
     this._player = new Player(settings, settings.playerData);
     // scheduler
@@ -91,8 +83,8 @@ class Game {
     return {x: this.centerX, y: this.centerY};
   }
 
-  get level() {
-    return this._levels[this._currentDepth];
+  get stage() {
+    return this._stage[this._currentDepth];
   }
 
   get noTile() {
@@ -141,6 +133,32 @@ class Game {
     }
   }
 
+  destroyTile(tile) {
+    // todo: different destroyed tile 
+    const newTile = new Tile(this._tiles[tile.destroyed]);
+    newTile.x = tile.x;
+    newTile.y = tile.y;
+    newTile.z = tile.z;
+    // todo: rend tile returns loot into newtile's loot function
+    tile.rend();
+    this.setTile(tile,newTile);
+  }
+
+  entitiesInRange(startXY, endXY) {
+    // returns a list of entities in given range
+    const tiles = this.getTiles(startXY, endXY);
+    let entList = [];
+    let ent, coord;
+    for (let i = 0; i < tiles.length; i++) {
+      coord = tiles[i];
+      ent = this.getEntity(coord); 
+      if (ent) {
+        entList.push(ent);
+      }
+    }
+    return entList;
+  }
+
   getEntity(coord) {
     const z = coord.z ?? this._currentDepth;
     const [x, y] = [coord.x, coord.y];
@@ -162,25 +180,6 @@ class Game {
     return result;
   }
 
-  destroyTile(tile) {
-    // todo: different destroyed tile 
-    const newTile = new Tile(this._tiles[tile.destroyed]);
-    newTile.x = tile.x;
-    newTile.y = tile.y;
-    newTile.z = tile.z;
-    // todo: rend tile returns loot into newtile's loot function
-    tile.rend();
-    this.setTile(tile,newTile);
-  }
-
-  freeTileInRadius(coord, radius) {
-    // returns a random free tile within radius
-    const startXY = {x: coord.x - radius, y: coord.y - radius};
-    const endXY = {x: coord.x + radius, y: coord.y + radius};
-    return this.freeTile(startXY, endXY);
-  }
-  
-
   freeTile(startXY, endXY) {
     // if start/end supplied, finds a random free tile in range, otherwise
     // finds a random free tile throughout the entire map, minus a small
@@ -196,15 +195,16 @@ class Game {
       buffer = 5;
       xOffset = 0;
       yOffset = 0;
-      width = this.level.width;
-      height = this.level.height;
+      width = this.stage.width;
+      height = this.stage.height;
     }
     // start with invalid coord to start search; valid depth needed or error
     let coord = {x:-1,y:-1,z:this._currentDepth};
     if ((xOffset === 0) && (yOffset === 0) &&
-      (width === this.level.width) && (height === this.level.height)) {
+      (width === this.stage.width) && (height === this.stage.height)) {
       // warning: can hang if no valid target found
       // this method only used when placing through whole map
+      // todo: refactor to use getFreeTiles for stage pop
       while (!this.isTileFree(coord)) {
         coord.x = Math.floor(this.getRandom() * width);
         if ((coord.x > (width - buffer)) || (coord.x <= buffer)) {
@@ -218,19 +218,9 @@ class Game {
       }
       return freeTile;
     } else {
-      const freeTiles = [];
-      let coord, choice;
-      for (let i = xOffset; i <= xOffset + width; i++) {
-        for (let j = yOffset; j <= yOffset + height; j++) {
-          coord = {x: i, y: j};
-          let free = this.isTileFree(coord)
-          if (free){
-            freeTiles.push(coord);
-          }
-        }
-      }
+      const freeTiles = this.getFreeTiles(startXY, endXY);
       if (freeTiles.length > 0) {
-        choice = this.getRandomInt(0, freeTiles.length - 1);
+        let choice = this.getRandomInt(0, freeTiles.length - 1);
         return this.getTile(freeTiles[choice]);
       } else {
         return false;
@@ -240,13 +230,45 @@ class Game {
   }
   
   getTile(coord) {
+    // retrieves contents of a tile
     const newZ = coord.z ?? this._currentDepth;
     const [x, y] = [coord.x,coord.y];
-    if (this._levels[newZ].contains(x,y)) {
-      return this.level.getValue(x, y);
+    if (this._stage[newZ].contains(x,y)) {
+      return this.stage.getValue(x, y);
     } else {
       return this.noTile;
     }
+  }
+
+  getTiles(startXY, endXY) {
+    // returns coordinates for a range of tiles; coordinates will then be fed
+    // into other funcs (e.g. freeTile() for finding empty tiles)
+    const tiles = [];
+    let coord;
+    const width = endXY.x - startXY.x;
+    const height = endXY.y - startXY.y;
+    for (let i = startXY.x; i <= startXY.x + width; i++) {
+      for (let j = startXY.y; j <= startXY.y + height; j++) {
+        coord = {x: i, y: j};
+        tiles.push(coord);
+      }
+    }
+    return tiles;
+  }
+
+  getFreeTiles(startXY, endXY) {
+    // returns coordinates for a range of free tiles; coordinates will then be
+    // fed into other funcs (e.g. freeTile() for finding empty tiles)
+    const tiles = this.getTiles(startXY, endXY);
+    const freeTiles = [];
+    let tile;
+    for (let i = 0; i < tiles.length; i++) {
+      tile = tiles[i];
+      if (this.isTileFree(tile)) {
+        freeTiles.push(tile);
+      }
+    }
+    return freeTiles;
   }
 
   getRandom() {
@@ -290,16 +312,16 @@ class Game {
     }
   }
 
-  makeLevel(currentDepth) {
+  makeStage(currentDepth) {
     let depth = currentDepth || 0;
-    const generator = new ROT.Map.Cellular(this.width,this.height);
+    const generator = new ROT.Map.Cellular(this.width, this.height);
     generator.randomize(0.5);
     const iterations = 1;
     // every iteration smoothens map
     for (let i = 0; i < iterations; i++){
       generator.create();
     }
-    const newLevel = new Grid(this.width, this.height);
+    const newStage = new Grid(this.width, this.height);
     // iterate one last time to write to map
     // have to call this locally to be accessed within generator
     let game = this;
@@ -311,28 +333,28 @@ class Game {
         newTile.x = x;
         newTile.y = y;
         newTile.z = currentDepth;
-        newLevel.setValue(x,y,newTile);
+        newStage.setValue(x,y,newTile);
       } else {
         newTile = new Tile(game._tiles['wall']);
         newTile.x = x;
         newTile.y = y;
         newTile.z = currentDepth;
-        newLevel.setValue(x,y,newTile);
+        newStage.setValue(x,y,newTile);
       }
 
     });
-    this._levels[depth] = newLevel;
+    this._stage[depth] = newStage;
   }
 
   makeWorld() {
     for (let i = 0; i < this.depth; i++) {
-      this.makeLevel(i);
+      this.makeStage(i);
     }
-    this.populateLevels();
+    this.populateStages();
   }
 
   move(entity, coord) {
-    if (this._levels[coord.z].contains(coord.x,coord.y)) {
+    if (this._stage[coord.z].contains(coord.x,coord.y)) {
       entity.x = coord.x;
       entity.y = coord.y;
       entity.z = coord.z;
@@ -350,23 +372,23 @@ class Game {
   }
 
   newTile(tileType) {
-    //todo: level/biome support for varied tiles
+    //todo: stage/biome support for varied tiles
     const newTile = new Tile(this._tiles[tileType]);
     return newTile;
   }
 
-  populateLevels() {
+  populateStages() {
     let allSettings = this.settings;
     let entitySettings = allSettings.entityData;
-    let levelSettings;
+    let stageSettings;
     for (let i = 0; i < this.depth; i++){
       this.currentDepth = i;
-      levelSettings = entitySettings.levelData[i];
-      if (levelSettings) {
-        let entities = Object.keys(levelSettings);
+      stageSettings = entitySettings.stageData[i];
+      if (stageSettings) {
+        let entities = Object.keys(stageSettings);
         for (let j = 0; j < entities.length; j++) {
           let entity = entities[j];
-          let entDetails = levelSettings[entity];
+          let entDetails = stageSettings[entity];
           let instance;
           for (let k = 0; k < entDetails.qty; k++) {
             instance = new Entity(this.settings, entitySettings.bestiary[entity]);
@@ -397,9 +419,23 @@ class Game {
     }
   }  
   
+  sendMessage(message, sender, radius) {
+    // sends a message to entities in range
+    // todo: ability to flag if messages need line of sight/hearing via A*
+    const range = sender.rangePoints(radius);
+    const entList = this.entitiesInRange(range[0],range[1]);
+    let ent;
+    for (let i = 0; i < entList.length; i++) {
+      ent = entList[i];
+      if (ent.hearing) {
+        ent.receiveMessage(message);
+      }
+    }
+  }
+
   setTile(coord, value) {
     const [x,y,z] = [coord.x,coord.y,coord.z]; 
-    this._levels[z].setValue(x,y,value);
+    this._stage[z].setValue(x,y,value);
   }
 
   unloadScheduler() {

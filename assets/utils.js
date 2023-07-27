@@ -18,6 +18,11 @@ class Point {
     return this._z;
   }
 
+  get coord() {
+    return {x: this._x, y: this._y, z: this._z};
+  }
+  
+
   set x(newX) {
     this._x = newX;
   }
@@ -29,6 +34,14 @@ class Point {
   set z(newZ) {
     this._z = newZ;
   }
+
+  rangePoints(radius) {
+    // returns start and end coordinates for a given range
+    const range = [];
+    range.push({x: this.x - radius, y: this.y - radius});
+    range.push({x: this.x + radius, y: this.y + radius});
+    return range;
+  }  
 }
 
 class Grid {
