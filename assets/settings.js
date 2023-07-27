@@ -261,7 +261,7 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x + 2, origin.y, name);
           display.draw(origin.x, origin.y, player.char, null, bg);
           display.drawText(origin.x, origin.y + 1,
-            fg + `HP:${player.hp}\/${player.maxHp}`
+            fg + '%b{' + view.bgColor + '}' + `HP:${player.hp}\/${player.maxHp}`
           );
         }
       // end of sidebar1
