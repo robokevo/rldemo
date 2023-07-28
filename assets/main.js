@@ -40,7 +40,7 @@ class newApp {
         //spacing: .95,
         forceSquareRatio: true,
         fontStyle: 'bold',
-        fontSize: '12',
+        fontSize: '13',
         //does this work?
         //textAlign: 'right',
       });

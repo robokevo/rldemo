@@ -165,7 +165,7 @@ APP_SETTINGS.viewData = {
       log: {
         name: "log",
         title: "Messages",
-        order:  0,
+        order:  1,
         borderWidth: 1,
         corners:  ['*','*','\\','\/'],
         origin: {
@@ -187,16 +187,7 @@ APP_SETTINGS.viewData = {
           const offset = Math.floor(this.title.length/2)
           // assumes even width
 
-          // rendering heading
-          let bgColorStr = '%b{' + '#992222' + '}';
-          let fgBgColorStr = '%c{' + '#992222' + '}';
-          let fgColorStr = '%c{' + '#ff9999' + '}';
-          let filler = bgColorStr + fgBgColorStr + '-'.repeat(
-            Math.floor((this.width)/2 - this.title.length/2));
-          filler += fgColorStr + bgColorStr + this.title + filler;
-          // so many hacks
-          // todo: proper title rendering for panels
-          display.drawText(origin.x, origin.y, filler, this.width+2);
+
         
           // Rendering messages from the line under the heading
           // messages render with the most recent message at the top,
@@ -204,40 +195,54 @@ APP_SETTINGS.viewData = {
 
           const messages = player.messages;
 
-          bgColorStr = '%b{' + '#500000' + '}';
-          fgBgColorStr = '%c{' + '#500000' + '}';
-          fgColorStr = '%c{' + '#ffaaaa' + '}';
+          let bgColorStr = '%b{' + '#330000' + '}';
+          let fgBgColorStr = '%c{' + '#100000' + '}';
+          let fgColorStr = '%c{' + '#ffaaaa' + '}';
+          msgBg = '%b{' + '#400000' + '}';
 
           let row = origin.y + 1;
           let overflow = 0;
-          let message = fgColorStr;
+          let message = fgColorStr + msgBg;
           
-          filler = bgColorStr + fgBgColorStr + '-'.repeat(this.width);
+          let filler = bgColorStr + fgBgColorStr + '_'.repeat(this.width);
+
+          for (let f = 1; f < this.height; f++) {
+            display.drawText(origin.x, origin.y + f, filler, this.width);
+          }
 
           if (messages.length > 0) {
-            for (let f = 1; f < this.height; f++) {
-              display.drawText(origin.x, origin.y + f, filler, this.width);
-            }
             for (let i = 0; i < this.height; i++) {
               if (messages[messages.length-(1+i)]) {
                 display.drawText(origin.x, row, filler, this.width);
                 overflow = display.drawText(origin.x, row, message + messages[messages.length-(1+i)]);
                 row += overflow;
-              }
+              } 
             }
           }
+          // rendering heading
+          bgColorStr = '%b{' + '#992222' + '}';
+          fgBgColorStr = '%c{' + '#992222' + '}';
+          fgColorStr = '%c{' + '#ff9999' + '}';
+          filler = bgColorStr + fgBgColorStr + '-'.repeat(
+            Math.floor((this.width)/2 - this.title.length/2));
+          filler += fgColorStr + bgColorStr + this.title + filler;
+          // so many hacks
+          // todo: proper title rendering for panels
+          display.drawText(origin.x, origin.y, filler, this.width+2);
         }
+        
+      // end of messages
       },
       sidebar1: {
         name: "Player",
-        order:  1,
+        order:  2,
         origin: {
           x: 0,
           y: 1,
         },
         inputs: {
         },
-        width:  10,
+        width:  9,
         height:  16,
         render: function() {
           const view = this.view;
@@ -259,38 +264,38 @@ APP_SETTINGS.viewData = {
           // todo: proper title rendering for panels
           display.drawText(origin.x, origin.y, filler, this.width);
           display.drawText(origin.x + 2, origin.y, name);
-          display.draw(origin.x, origin.y, player.char, null, bg);
-          display.drawText(origin.x, origin.y + 1,
-            fg + '%b{' + view.bgColor + '}' + `Hungry`
-          );
-          display.drawText(origin.x, origin.y + 3,
+          display.draw(origin.x, origin.y, player.char, '#992222', '#992222');
+          display.drawText(origin.x, origin.y + 2,
             fg + '%b{' + view.bgColor + '}' + `HP:${player.hp}\/${player.maxHp}`
           );
-          display.drawText(origin.x, origin.y + 4,
+          display.drawText(origin.x, origin.y + 3,
             fg + '%b{' + view.bgColor + '}' + `Energy:100`
           );
-          display.drawText(origin.x, origin.y + 5,
+          display.drawText(origin.x, origin.y + 4,
             fg + '%b{' + view.bgColor + '}' + `Attack:${player.atkPower}`
           );
-          display.drawText(origin.x, origin.y + 6,
+          display.drawText(origin.x, origin.y + 5,
             fg + '%b{' + view.bgColor + '}' + `Defense:${player.defense}`
           );
-          display.drawText(origin.x, origin.y + 7,
+          display.drawText(origin.x, origin.y + 6,
             fg + '%b{' + view.bgColor + '}' + `Eqp.:`
+          );
+          display.drawText(origin.x, origin.y + 7,
+            fg + '%b{' + view.bgColor + '}' + `Hungry`
           );
         }
       // end of sidebar1
       },
       sidebar2: {
         name: "Info",
-        order:  1,
+        order:  3,
         origin: {
           x: 0,
-          y: 9,
+          y: 10,
         },
         inputs: {
         },
-        width:  10,
+        width:  9,
         height:  16,
         render: function() {
           const view = this.view;
@@ -429,6 +434,8 @@ APP_SETTINGS.gameData = {
   },
   tileData:   {
     wall: {
+      //boulder doesn't work in chromium windows as of 8/23
+      //char: '\u{1FAA8}',
       char: '\u{26F0}',//'
       fgColor: 'saddlebrown',
       bgColor: '#700000',

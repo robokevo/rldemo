@@ -23,6 +23,8 @@ class Entity extends Glyph {
     this._hearing = subsettings.hearing || true;
   }
 
+  // todo: get bearing() to return absolute bearing of entity
+
   get actor() {
     // returns this entity's status as an actor
     return this._actor; 
