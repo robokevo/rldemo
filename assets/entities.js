@@ -31,6 +31,7 @@ class Entity extends Glyph {
   }
 
   get atkPower() {
+    // todo: rename power/attack to str
     // todo: figure in stats + equipment
     return this.basePower;
   }

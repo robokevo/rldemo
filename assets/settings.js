@@ -196,15 +196,15 @@ APP_SETTINGS.viewData = {
           const messages = player.messages;
 
           let bgColorStr = '%b{' + '#330000' + '}';
-          let fgBgColorStr = '%c{' + '#100000' + '}';
+          let fgBgColorStr = '%c{' + '#220000' + '}';
           let fgColorStr = '%c{' + '#ffaaaa' + '}';
-          msgBg = '%b{' + '#400000' + '}';
+          msgBg = '%b{' + '#220000' + '}';
 
           let row = origin.y + 1;
           let overflow = 0;
           let message = fgColorStr + msgBg;
           
-          let filler = bgColorStr + fgBgColorStr + '_'.repeat(this.width);
+          let filler = bgColorStr + fgBgColorStr + '. '.repeat(Math.ceil(this.width/2));
 
           for (let f = 1; f < this.height; f++) {
             display.drawText(origin.x, origin.y + f, filler, this.width);
@@ -258,31 +258,32 @@ APP_SETTINGS.viewData = {
           let bg = '%b{' + '#992222' + '}';
           let fgBg = '%c{' + '#992222' + '}';
           let fg = '%c{' + '#ffbbbb' + '}';
-          let filler = bg + fgBg + '-'.repeat(this.width);
+          let filler = bg + fgBg + '.'.repeat(this.width);
           const name = fg + bg + player.name;
           // so many hacks
           // todo: proper title rendering for panels
           display.drawText(origin.x, origin.y, filler, this.width);
           display.drawText(origin.x + 2, origin.y, name);
           display.draw(origin.x, origin.y, player.char, '#992222', '#992222');
-          display.drawText(origin.x, origin.y + 2,
-            fg + '%b{' + view.bgColor + '}' + `HP:${player.hp}\/${player.maxHp}`
-          );
-          display.drawText(origin.x, origin.y + 3,
-            fg + '%b{' + view.bgColor + '}' + `Energy:100`
-          );
-          display.drawText(origin.x, origin.y + 4,
-            fg + '%b{' + view.bgColor + '}' + `Attack:${player.atkPower}`
-          );
-          display.drawText(origin.x, origin.y + 5,
-            fg + '%b{' + view.bgColor + '}' + `Defense:${player.defense}`
-          );
-          display.drawText(origin.x, origin.y + 6,
-            fg + '%b{' + view.bgColor + '}' + `Eqp.:`
-          );
-          display.drawText(origin.x, origin.y + 7,
+          display.drawText(origin.x, origin.y + 1,
             fg + '%b{' + view.bgColor + '}' + `Hungry`
           );
+          display.drawText(origin.x, origin.y + 3,
+            fg + '%b{' + view.bgColor + '}' + `HP:${player.hp}\/${player.maxHp}`
+          );
+          display.drawText(origin.x, origin.y + 4,
+            fg + '%b{' + view.bgColor + '}' + `Energy:100`
+          );
+          display.drawText(origin.x, origin.y + 5,
+            fg + '%b{' + view.bgColor + '}' + `Attack:${player.atkPower}`
+          );
+          display.drawText(origin.x, origin.y + 6,
+            fg + '%b{' + view.bgColor + '}' + `Defense:${player.defense}`
+          );
+          display.drawText(origin.x, origin.y + 7,
+            fg + '%b{' + view.bgColor + '}' + `Eqp.:`
+          );
+
         }
       // end of sidebar1
       },
@@ -318,6 +319,9 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x, origin.y, filler, this.width);
           display.drawText(origin.x + Math.floor((this.width)/2-2), origin.y, name);
           //display.draw(origin.x, origin.y, player.char, null, bg);
+          display.drawText(origin.x, origin.y + 2,
+            fg + '%b{' + view.bgColor + '}' + 'No Info'
+          );
         }
       // end of sidebar2
       },
@@ -453,6 +457,18 @@ APP_SETTINGS.gameData = {
       char: '\u{1F3D4}',
       fgColor: 'saddlebrown',
       bgColor: '#700000',
+    },
+    hole: {
+      char: '\u{1F573}',
+      fgColor: '#aa2222',
+      bgColor: '#900000',
+      passable: true,
+    },
+    ladder: {
+      char: '\u{1F573}',
+      fgColor: '#aa2222',
+      bgColor: '#900000',
+      passable: true,
     }
   // end of tileData
   },

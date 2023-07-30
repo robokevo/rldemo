@@ -4,7 +4,7 @@ class Game {
     settings.game = this;
     this._settings = settings;
     this._depth = settings.worldData.depth;
-    this._stage = settings.worldData.stages;
+    this._stages = settings.worldData.stages;
     this._width = settings.worldData.width;
     this._height = settings.worldData.height;
     // start paused to do game setup, then pause/unpause
@@ -14,7 +14,7 @@ class Game {
     this._tiles = settings.tileData;
     this._noTile = new Tile(this._tiles['none']);
     this._currentDepth = settings.worldData.currentDepth || 0;
-    this._stage[this._currentDepth] = new Grid(this._width,this._height);
+    //this._stages[this._currentDepth] = new Grid(this._width,this._height);
     // todo: for centering play area; will eventually center on player
     this._player = new Player(settings, settings.playerData);
     // scheduler
@@ -84,7 +84,7 @@ class Game {
   }
 
   get stage() {
-    return this._stage[this._currentDepth];
+    return this._stages[this._currentDepth];
   }
 
   get noTile() {
@@ -233,7 +233,7 @@ class Game {
     // retrieves contents of a tile
     const newZ = coord.z ?? this._currentDepth;
     const [x, y] = [coord.x,coord.y];
-    if (this._stage[newZ].contains(x,y)) {
+    if (this._stages[newZ].contains(x,y)) {
       return this.stage.getValue(x, y);
     } else {
       return this.noTile;
@@ -253,7 +253,9 @@ class Game {
         tiles.push(coord);
       }
     }
-    return tiles;
+    // shuffle tiles before return to avoid bias of starting tile
+    // have to shuffle with getRandom() to make reproduceable w/ seed
+    return tiles.sort(()=> this.getRandom() - 0.5);
   }
 
   getFreeTiles(startXY, endXY) {
@@ -321,7 +323,7 @@ class Game {
     for (let i = 0; i < iterations; i++){
       generator.create();
     }
-    const newStage = new Grid(this.width, this.height);
+    const newStage = new Stage(this.width, this.height);
     // iterate one last time to write to map
     // have to call this locally to be accessed within generator
     let game = this;
@@ -343,7 +345,7 @@ class Game {
       }
 
     });
-    this._stage[depth] = newStage;
+    this._stages[depth] = newStage;
   }
 
   makeWorld() {
@@ -354,7 +356,7 @@ class Game {
   }
 
   move(entity, coord) {
-    if (this._stage[coord.z].contains(coord.x,coord.y)) {
+    if (this._stages[coord.z].contains(coord.x,coord.y)) {
       entity.x = coord.x;
       entity.y = coord.y;
       entity.z = coord.z;
@@ -435,7 +437,7 @@ class Game {
 
   setTile(coord, value) {
     const [x,y,z] = [coord.x,coord.y,coord.z]; 
-    this._stage[z].setValue(x,y,value);
+    this._stages[z].setValue(x,y,value);
   }
 
   unloadScheduler() {

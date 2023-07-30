@@ -37,12 +37,12 @@ class newApp {
       this._display = new ROT.Display({
         width: this._displayWidth,
         height: this._displayHeight,
-        //spacing: .95,
+        spacing: 1,
         forceSquareRatio: true,
         fontStyle: 'bold',
         fontSize: '13',
         //does this work?
-        //textAlign: 'right',
+        textAlign: 'left',
       });
       this._viewData = settings.viewData;
       //this._vHandler = new ViewHandler(this);
