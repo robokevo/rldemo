@@ -31,6 +31,7 @@ class Tile extends Glyph{
     this._passable = settings.passable ?? false;
     this._destroyed = settings._destroyed ?? 'floor';
     this._region = settings.region ?? null;
+    this._exit = settings.exit ?? false;
   }
 
   get destructible() {
@@ -53,6 +54,10 @@ class Tile extends Glyph{
 
   get destroyed() {
     return this._destroyed;
+  }
+
+  get isExit() {
+    return this._exit;
   }
 
   get occupied() {

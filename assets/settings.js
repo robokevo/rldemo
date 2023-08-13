@@ -107,8 +107,6 @@ APP_SETTINGS.viewData = {
         this.state = new Game(this.main.settings.gameData, this);
         game = this.state;
         game.makeWorld();
-        let target = game.freeTile();
-        game.addEntity(this.state.player, target);
         game.loadScheduler();
         game.engine.start();
       } else {
@@ -448,7 +446,7 @@ APP_SETTINGS.gameData = {
     wall: {
       //boulder doesn't work in chromium windows as of 8/23
       //char: '\u{1FAA8}',
-      char: '\u{26F0}',//'
+      char: '\u{26F0}', // add '\u{FE0F}' for emoji style
       fgColor: 'saddlebrown',
       bgColor: '#700000',
       destructible: true,
@@ -469,9 +467,12 @@ APP_SETTINGS.gameData = {
     },
     hole: {
       char: '\u{1F573}',
-      fgColor: '#aa2222',
-      bgColor: '#900000',
+      fgColor: '#242222',
+      bgColor: '#990000',
       passable: true,
+      exit: true,
+      // todo: straighten out directionality
+      direction: -1,
     },
     ladder: {
       char: '\u{1F573}',

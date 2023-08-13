@@ -425,19 +425,27 @@ class Game {
       // i = 1 to skip walls
       let regionList = newStage.regionKeys;
       for (let i = 1; i < regionList.length; i++) {
-        if (newStage.getRegion(i).length < 30) {
+        if (newStage.getRegion(i).length < 50) {
           newStage.clearRegion(i);
         }
       }
       let minVolume = 500;
       let minRegions = 5;
       let maxRegions = 7;
-      let regionCount = newStage.regionKeys.length;
+      regionList = newStage.regionKeys;
+      let regionCount = regionList.length;
       let regionVolume = newStage.regionVolume;
       if (regionVolume > minVolume && 
         regionCount >= minRegions &&
         regionCount <= maxRegions) {
+        if (depth === 0) {
+          let index = regionList[regionCount-1];
+          let targets = newStage.regions[index];
+          let target = targets[this.getRandomInt(1,targets.length-1)];
+          this.setTile(target, new Tile(game.tiles['hole']));
+        }
         pass = true;
+        console.log(newStage.regions);
       }
     }
   // end of makeStage()
@@ -482,9 +490,20 @@ class Game {
     let entitySettings = allSettings.entityData;
     let stageSettings;
     let startingDepth = this.currentDepth;
+    let stage, target, targets;
+    let index, regionList, regionCount;
     for (let i = 0; i < this.depth; i++){
       this.currentDepth = i;
+      stage = this.stage;
+      regionList = stage.regionKeys;
+      regionCount = regionList.length;
       stageSettings = entitySettings.stageData[i];
+      if (i === 0) {
+        targets = stage.regions[1];
+        target = targets[this.getRandomInt(1,targets.length-1)];
+        let player = this.player;
+        game.addEntity(player, target);
+      }
       if (stageSettings) {
         let entities = Object.keys(stageSettings);
         for (let j = 0; j < entities.length; j++) {
