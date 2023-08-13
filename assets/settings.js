@@ -82,8 +82,12 @@ APP_SETTINGS.viewData = {
           game.engine.unlock();
         }
       },
+      m:  function(main) {
+        console.log(main);
+      },
       t:  function(main) {
-        console.log(main.view.state.player);
+        const game = main.view.state;
+        console.log(game.getTile(game.player));
       },
       x:  function(main) {
         const game = main.view.state;
@@ -103,7 +107,8 @@ APP_SETTINGS.viewData = {
         this.state = new Game(this.main.settings.gameData, this);
         game = this.state;
         game.makeWorld();
-        game.addEntity(this.state.player);
+        let target = game.freeTile();
+        game.addEntity(this.state.player, target);
         game.loadScheduler();
         game.engine.start();
       } else {
@@ -362,6 +367,9 @@ APP_SETTINGS.viewData = {
           for (let x = topLeftX; x < topLeftX + dWidth; x++) {
             for (let y = topLeftY; y < topLeftY + dHeight; y++) {
               let tile = game.getTile({x:x,y:y});
+              if (!tile) {
+                tile = game.noTile;
+              }
               display.draw(
               origin.x + x - topLeftX,
               origin.y + y - topLeftY,
@@ -428,7 +436,7 @@ APP_SETTINGS.gameData = {
   worldData:  {
     depth:        6,
     currentDepth: 0,
-    stages:       [],
+    //stages:       {},
     width:        48,
     height:       30,
   // end of worldData
@@ -446,6 +454,7 @@ APP_SETTINGS.gameData = {
       destructible: true,
       passable: false,
       destroyed: 'floor',
+      region: 0,
     },
     floor: {
       char: '\`',

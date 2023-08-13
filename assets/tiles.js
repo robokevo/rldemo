@@ -27,9 +27,10 @@ class Glyph extends Point {
 class Tile extends Glyph{
   constructor(settings) {
     super(settings)
-    this._destructible = settings.destructible || false;
-    this._passable = settings.passable || false;
-    this._destroyed = settings._destroyed || 'floor';
+    this._destructible = settings.destructible ?? false;
+    this._passable = settings.passable ?? false;
+    this._destroyed = settings._destroyed ?? 'floor';
+    this._region = settings.region ?? null;
   }
 
   get destructible() {
@@ -41,6 +42,15 @@ class Tile extends Glyph{
     return this._passable;
   }
 
+  // todo: delete this after test
+  get char() {
+    if (this.region > 0) {
+      return this.region;
+    } else {
+      return this._char;
+    }
+  }
+
   get destroyed() {
     return this._destroyed;
   }
@@ -50,10 +60,23 @@ class Tile extends Glyph{
     return;
   }
 
+  get region() {
+    if (this._region === null) {
+      return -1;
+    } else {
+      return this._region;
+    }
+  }
+
+  set region(region) {
+    this._region = region;
+  }
+
   rend() {
     // perform 'on-death' actions (e.g. drop loot)
     // todo: anything
     return;
   }
+// end of Tile class
 }
 

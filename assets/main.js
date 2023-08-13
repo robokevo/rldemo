@@ -37,11 +37,12 @@ class newApp {
       this._display = new ROT.Display({
         width: this._displayWidth,
         height: this._displayHeight,
-        spacing: 1,
+        //spacing: 1,
         forceSquareRatio: true,
         fontStyle: 'bold',
-        fontSize: '13',
-        //does this work?
+        fontSize: '20',
+        // todo: does this work?
+        // todo: test font families, font file import
         textAlign: 'left',
       });
       this._viewData = settings.viewData;

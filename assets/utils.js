@@ -38,31 +38,40 @@ class Point {
   rangePoints(radius) {
     // returns start and end coordinates for a given range
     const range = [];
-    range.push({x: this.x - radius, y: this.y - radius});
-    range.push({x: this.x + radius, y: this.y + radius});
+    range.push({x: this.x - radius, y: this.y - radius, z: this.z});
+    range.push({x: this.x + radius, y: this.y + radius, z: this.z});
     return range;
   }  
 }
 
 class Grid {
-  constructor(width, height, data) {
+  constructor(width, height) {
     this._width = width;
     this._height = height;
-    this._data = data || [];
+    // todo: test map implementation of data
+    this._data = [];
   }
   // check if coordinates are found within
-  contains(x, y) { 
-      return (x >= 0 && x < this._width && y >= 0 && y < this._height); 
+  contains(coord) { 
+      return (coord.x >= 0 && coord.x < this._width && coord.y >= 0 && coord.y < this._height); 
   }
     
-  getValue(x, y) {
-    return this._data[x + this._width * y];
+  getValue(coord) {
+    return this._data[coord.x + this._width * coord.y];
   }
 
-  setValue(x, y, newValue) {
+  setValue(coord, newValue) {
     if (newValue) {
-      this._data[x + this._width * y] = newValue;
+      newValue.x = coord.x;
+      newValue.y = coord.y;
+      newValue.z = coord.z;
+      this._data[coord.x + this._width * coord.y] = newValue;
     }
+  }
+
+  setData(newData) {
+  // todo: check for proper array type
+    this._data = newData;
   }
 
   get width() {
@@ -71,4 +80,24 @@ class Grid {
   get height() {
       return this._height;
   }
-}; 
+};
+
+const getMode = (list) => {
+  // returns mode of a list
+  const counts = {};
+  let max = 0;
+  let mode = null;
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    if (counts[item]) {
+      counts[item]++;
+    } else {
+      counts[item] = 1;
+    }
+    if (counts[item] > max) {
+      max = counts[item];
+      mode = item;
+    }
+  }
+  return mode;
+}

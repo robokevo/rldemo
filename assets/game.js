@@ -4,7 +4,7 @@ class Game {
     settings.game = this;
     this._settings = settings;
     this._depth = settings.worldData.depth;
-    this._stages = settings.worldData.stages;
+    this._stages = settings.worldData.stages ?? [];
     this._width = settings.worldData.width;
     this._height = settings.worldData.height;
     // start paused to do game setup, then pause/unpause
@@ -52,6 +52,10 @@ class Game {
     return this._depth;
   }
 
+  set depth(newDepth) {
+    this._depth = newDepth;
+  }
+
   get paused() {
     return this._paused;
   }
@@ -85,6 +89,10 @@ class Game {
 
   get stage() {
     return this._stages[this._currentDepth];
+  }
+  
+  get tiles() {
+    return this._tiles;
   }
 
   get noTile() {
@@ -133,16 +141,6 @@ class Game {
     }
   }
 
-  destroyTile(tile) {
-    // todo: different destroyed tile 
-    const newTile = new Tile(this._tiles[tile.destroyed]);
-    newTile.x = tile.x;
-    newTile.y = tile.y;
-    newTile.z = tile.z;
-    // todo: rend tile returns loot into newtile's loot function
-    tile.rend();
-    this.setTile(tile,newTile);
-  }
 
   entitiesInRange(startXY, endXY) {
     // returns a list of entities in given range
@@ -160,22 +158,25 @@ class Game {
   }
 
   getEntity(coord) {
+    // returns entity at given tile if there, else returns false
     const z = coord.z ?? this._currentDepth;
     const [x, y] = [coord.x, coord.y];
     //todo: does entities need to get moved to a grid or map object?
     const entList = this.entities
     let result = false;
     let ent;
-    for (let i = 0; i < entList.length; i++) {
-      ent = entList[i];
-      if (
-        ent.x === x &&
-        ent.y === y &&
-        ent.z === z) {
-        result = ent;
-        break;
-      }
+    if (this.entities) {
+      for (let i = 0; i < entList.length; i++) {
+        ent = entList[i];
+        if (
+          ent.x === x &&
+          ent.y === y &&
+          ent.z === z) {
+          result = ent;
+          break;
+        }
 
+      }
     }
     return result;
   }
@@ -199,45 +200,72 @@ class Game {
       height = this.stage.height;
     }
     // start with invalid coord to start search; valid depth needed or error
-    let coord = {x:-1,y:-1,z:this._currentDepth};
+    let depth = this.currentDepth ?? 0;
+    let coord = {x:-1,y:-1,z:depth};
+    let firstXY, lastXY;
     if ((xOffset === 0) && (yOffset === 0) &&
       (width === this.stage.width) && (height === this.stage.height)) {
       // warning: can hang if no valid target found
       // this method only used when placing through whole map
       // todo: refactor to use getFreeTiles for stage pop
-      while (!this.isTileFree(coord)) {
-        coord.x = Math.floor(this.getRandom() * width);
-        if ((coord.x > (width - buffer)) || (coord.x <= buffer)) {
-          coord.x = -1;
-        }
-        coord.y = Math.floor(this.getRandom() * height);
-        if ((coord.y > (height - buffer)) || (coord.y <= buffer)) {
-          coord.y = -1;
-        }
-        freeTile = this.getTile(coord);
-      }
-      return freeTile;
+        //while (!this.isTileFree(coord)) {
+        //  coord.x = Math.floor(this.getRandom() * width);
+        //  if ((coord.x > (width - buffer)) || (coord.x <= buffer)) {
+        //    coord.x = -1;
+        //  }
+        //  coord.y = Math.floor(this.getRandom() * height);
+        //  if ((coord.y > (height - buffer)) || (coord.y <= buffer)) {
+        //    coord.y = -1;
+        //  }
+        //  freeTile = this.getTile(coord);
+        //}
+      firstXY = {x:5,y:5};
+      lastXY = {x:width-5,y:height-5};
+      //return freeTile;
     } else {
-      const freeTiles = this.getFreeTiles(startXY, endXY);
-      if (freeTiles.length > 0) {
-        let choice = this.getRandomInt(0, freeTiles.length - 1);
-        return this.getTile(freeTiles[choice]);
-      } else {
-        return false;
-      }
+      firstXY = startXY;
+      lastXY = endXY;
+      //const freeTiles = this.getFreeTiles(startXY, endXY);
+      //if (freeTiles.length > 0) {
+      //  let choice = this.getRandomInt(0, freeTiles.length - 1);
+      //  return this.getTile(freeTiles[choice]);
+      //} else {
+      //  return false;
+      //}
     }
-
+    const freeTiles = this.getFreeTiles(firstXY, lastXY);
+    if (freeTiles.length > 0) {
+      let choice = this.getRandomInt(0, freeTiles.length - 1);
+      return this.getTile(freeTiles[choice]);
+    } else {
+      return false;
+    }
   }
   
   getTile(coord) {
     // retrieves contents of a tile
-    const newZ = coord.z ?? this._currentDepth;
-    const [x, y] = [coord.x,coord.y];
-    if (this._stages[newZ].contains(x,y)) {
-      return this.stage.getValue(x, y);
+    const newZ = coord.z || this.currentDepth;
+    if (this._stages[newZ].contains(coord)) {
+      return this.stage.getValue(coord);
     } else {
-      return this.noTile;
+      return false;
     }
+  }
+
+  setTile(coord, value) {
+    //const [x,y,z] = [coord.x,coord.y,coord.z]; 
+    this._stages[coord.z].setValue(coord,value);
+  }
+  
+  destroyTile(tile) {
+    // todo: different destroyed tile 
+    const newTile = new Tile(this._tiles[tile.destroyed]);
+    newTile.x = tile.x;
+    newTile.y = tile.y;
+    newTile.z = tile.z;
+    // todo: rend tile returns loot into newtile's loot function
+    tile.rend();
+    this.setTile(tile,newTile);
   }
 
   getTiles(startXY, endXY) {
@@ -249,7 +277,7 @@ class Game {
     const height = endXY.y - startXY.y;
     for (let i = startXY.x; i <= startXY.x + width; i++) {
       for (let j = startXY.y; j <= startXY.y + height; j++) {
-        coord = {x: i, y: j};
+        coord = {x: i, y: j, z: this.currentDepth};
         tiles.push(coord);
       }
     }
@@ -286,12 +314,16 @@ class Game {
   }
 
   isTileFree(coord) {
-    const coordCheck = this.getEntity(coord);
-    // todo: if entities are gaseous etc. implement passable
-    if (!coordCheck && this.getTile(coord).passable) {
-        return true;
+    const tile = this.getTile(coord);
+    let result = false;
+    if (tile) {
+      const coordCheck = this.getEntity(coord);
+      // todo: if entities are gaseous etc. implement passable
+      if (!coordCheck && tile.passable) {
+          result = true;
+      }
     }
-    return false;
+    return result;
   }
 
   loadScheduler(depth) {
@@ -315,48 +347,112 @@ class Game {
   }
 
   makeStage(currentDepth) {
-    let depth = currentDepth || 0;
-    const generator = new ROT.Map.Cellular(this.width, this.height);
-    generator.randomize(0.5);
-    const iterations = 1;
-    // every iteration smoothens map
-    for (let i = 0; i < iterations; i++){
-      generator.create();
-    }
-    const newStage = new Stage(this.width, this.height);
-    // iterate one last time to write to map
-    // have to call this locally to be accessed within generator
-    let game = this;
-    generator.connect();
-    generator.create(function(x,y,v){
-      let newTile;
-      if (v === 0) {
-        newTile = new Tile(game._tiles['floor']);
-        newTile.x = x;
-        newTile.y = y;
-        newTile.z = currentDepth;
-        newStage.setValue(x,y,newTile);
-      } else {
-        newTile = new Tile(game._tiles['wall']);
-        newTile.x = x;
-        newTile.y = y;
-        newTile.z = currentDepth;
-        newStage.setValue(x,y,newTile);
+    const depth = currentDepth || 0;
+    let pass = false;
+    while (!pass) {
+    // todo: not constrain map size to static game size
+      const generator = new ROT.Map.Cellular(this.width, this.height);
+      generator.randomize(0.5);
+      const iterations = 20;
+      // every iteration smoothens map
+      for (let i = 0; i < iterations; i++){
+        generator.create();
       }
-
-    });
-    this._stages[depth] = newStage;
+      const newStage = new Stage(this.width, this.height, this);
+      newStage.depth = depth;
+      this._stages[depth] = newStage;
+      // iterate one last time to write to map
+      // have to call this locally to be accessed within generator
+      let game = this;
+      //generator.connect() would trip up region setup later
+      generator.create(function(x,y,v){
+        let newTile;
+        let coord = {x: x, y: y, z: depth};
+        if (v === 1) {
+          newTile = new Tile(game.tiles['floor']);
+          //newTile.x = x;
+          //newTile.y = y;
+          newTile.z = currentDepth;
+          newStage.setValue(coord,newTile);
+        } else {
+          newTile = new Tile(game.tiles['wall']);
+          //newTile.x = x;
+          //newTile.y = y;
+          newTile.z = currentDepth;
+          newStage.setValue(coord,newTile);
+        }
+      });
+      // walking map for region setup
+      let coord = {x: 0, y: 0};
+      let queue = [];
+      let regionIndex = 0;
+      let range, neighbors;
+      for (let i = 0; i < this.width; i++) {
+        for (let j = 0; j < this.height; j++) {
+          coord.x = i;
+          coord.y = j;
+          coord.z = currentDepth;
+          let tile = game.getTile(coord);
+          if (tile.passable) {
+            if (tile.region < 0) {
+              // todo: set walls as region 0
+              regionIndex++;
+              tile.region = regionIndex;
+              newStage.setRegion(tile);
+              range = tile.rangePoints(1);
+              queue = game.getFreeTiles(range[0], range[1]);
+              while (queue.length > 0) {
+                let tileCoord = queue.shift();
+                tile = game.getTile(tileCoord);
+                tile.region = regionIndex;
+                newStage.setRegion(tile);
+                range = tile.rangePoints(1);
+                neighbors = game.getFreeTiles(range[0], range[1]);
+                for (let k = 0; k < neighbors.length; k++) {
+                  tile = game.getTile(neighbors[k]);
+                  if (tile.region < 0) {
+                    if (queue.indexOf(tile) === -1) {
+                      queue.push(tile)
+                    };
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      let minVolume = 500;
+      let minRegions = 5;
+      let regionVolume = newStage.regionVolume;
+      let regionCount = Object.keys(newStage.regions).length;
+      // i = 1 to skip walls
+      let regionList = Object.keys(newStage.regions);
+      for (let i = 1; i < regionList.length; i++) {
+        if (newStage.getRegion(i).length < 18) {
+          newStage.clearRegion(i);
+        }
+      }
+      
+      if (regionVolume > minVolume && regionCount > minRegions) {
+        pass = true;
+        console.log(newStage.regionKeys);
+      }
+    }
+  // end of makeStage()
   }
 
   makeWorld() {
+    const startDepth = this.currentDepth;
     for (let i = 0; i < this.depth; i++) {
+      this.currentDepth = i;
       this.makeStage(i);
     }
     this.populateStages();
+    this.currentDepth = startDepth;
   }
 
   move(entity, coord) {
-    if (this._stages[coord.z].contains(coord.x,coord.y)) {
+    if (this._stages[coord.z].contains(coord)) {
       entity.x = coord.x;
       entity.y = coord.y;
       entity.z = coord.z;
@@ -433,11 +529,6 @@ class Game {
         ent.receiveMessage(message);
       }
     }
-  }
-
-  setTile(coord, value) {
-    const [x,y,z] = [coord.x,coord.y,coord.z]; 
-    this._stages[z].setValue(x,y,value);
   }
 
   unloadScheduler() {
