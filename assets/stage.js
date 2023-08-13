@@ -26,10 +26,7 @@ class Stage extends Grid {
   }
   
   get regionKeys() {
-    if (!this._regionKeys) {
-      this._regionKeys = Object.keys(this._regions).sort();
-    }
-    return this._regionKeys;    
+    return Object.keys(this._regions).sort();    
   }
 
   get game() {

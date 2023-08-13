@@ -358,7 +358,7 @@ class Game {
       for (let i = 0; i < iterations; i++){
         generator.create();
       }
-      const newStage = new Stage(this.width, this.height, this);
+      let newStage = new Stage(this.width, this.height, this);
       newStage.depth = depth;
       this._stages[depth] = newStage;
       // iterate one last time to write to map
@@ -421,21 +421,23 @@ class Game {
           }
         }
       }
-      let minVolume = 500;
-      let minRegions = 5;
-      let regionVolume = newStage.regionVolume;
-      let regionCount = Object.keys(newStage.regions).length;
+      // todo: implement this at stage init level
       // i = 1 to skip walls
-      let regionList = Object.keys(newStage.regions);
+      let regionList = newStage.regionKeys;
       for (let i = 1; i < regionList.length; i++) {
-        if (newStage.getRegion(i).length < 18) {
+        if (newStage.getRegion(i).length < 30) {
           newStage.clearRegion(i);
         }
       }
-      
-      if (regionVolume > minVolume && regionCount > minRegions) {
+      let minVolume = 500;
+      let minRegions = 5;
+      let maxRegions = 7;
+      let regionCount = newStage.regionKeys.length;
+      let regionVolume = newStage.regionVolume;
+      if (regionVolume > minVolume && 
+        regionCount >= minRegions &&
+        regionCount <= maxRegions) {
         pass = true;
-        console.log(newStage.regionKeys);
       }
     }
   // end of makeStage()
@@ -479,6 +481,7 @@ class Game {
     let allSettings = this.settings;
     let entitySettings = allSettings.entityData;
     let stageSettings;
+    let startingDepth = this.currentDepth;
     for (let i = 0; i < this.depth; i++){
       this.currentDepth = i;
       stageSettings = entitySettings.stageData[i];
@@ -495,7 +498,7 @@ class Game {
         }
       }
     }
-    this.currentDepth = this.settings.worldData.currentDepth;
+    this.currentDepth = startingDepth;
   }
 
   pause() {
