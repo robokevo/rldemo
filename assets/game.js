@@ -533,17 +533,17 @@ class Game {
   }
 
   move(entity, coord) {
-    if (this._stages[coord.z].contains(coord)) {
+    if (this._stages[entity.z].contains(coord)) {
       entity.x = coord.x;
       entity.y = coord.y;
       if (coord.z != this.currentDepth) {
         //game.pause();
         //this.removeEntity(entity);
         entity.z = coord.z;
-        //this.currentDepth = coord.z;
+        this.currentDepth = coord.z;
+        console.log(this.entities(coord.z).splice(this.entities(coord.z).indexOf(entity)[0], 1));
         //this.addEntity(entity);
-        //console.log(this._entities[coord.z].splice(this._entities[coord.z].indexOf(entity)[0], 1));
-        //this._entities[coord.z].push(entity);
+        this.entities(coord.z).push(entity);
         if (entity.player) {
           // todo: have scheduler keep all entities, only entities within
           // x no. of floors will
