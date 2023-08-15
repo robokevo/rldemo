@@ -10,8 +10,9 @@ class Stage extends Grid {
   // 0th region
   // todo: walls as 0th region
   this._game = game;
+  this._mainExit = null;
   }
-
+  
   get regions() {
     return this._regions;
   }
@@ -36,6 +37,23 @@ class Stage extends Grid {
   set depth(newDepth) {
     this._depth = newDepth;
   }
+
+  get firstRegion() {
+    return this.regions[this.regionKeys[1]];
+  }
+
+  get lastRegion() {
+    return this.regions[this.regionKeys[this.regionKeys.length - 1]];
+  }
+
+  get mainExit() {
+    return this._mainExit;
+  }
+
+  set mainExit(newExit) {
+    this._mainExit = newExit;
+  }
+  
   coordInRegion(coord, region) {
     return this._regions[region].includes(coord);
   }

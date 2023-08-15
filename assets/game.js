@@ -2,6 +2,8 @@ class Game {
   constructor(settings) {
     // todo: abstract out to universe that holds worlds with discrete stages
     settings.game = this;
+    // will be used to determine initial directionality of stages
+    this._bias = null;
     this._settings = settings;
     this._depth = settings.worldData.depth;
     this._stages = settings.worldData.stages ?? [];
@@ -26,6 +28,20 @@ class Game {
     for (let i = 0; i < this._depth; i++) {
       this._entities[i] = [];
     }
+  }
+
+  get bias() {
+    // will be used to determine level directionality,
+    // possibly other coinflips for flavor
+    if (this._bias === null) {
+      this._bias = this.coinFlip;
+    }
+    return this._bias;
+  }
+
+  get coinFlip() {
+    // returns 0 or 1 to be used as a boolean
+    return this.getRandomInt(0,1);
   }
 
   get settings() {
@@ -90,6 +106,10 @@ class Game {
   get stage() {
     return this._stages[this._currentDepth];
   }
+
+  get stages() {
+    return this._stages;
+  }
   
   get tiles() {
     return this._tiles;
@@ -104,7 +124,7 @@ class Game {
   }
 
   get entities() {
-    return this._entities[this._currentDepth];
+    return this._entities[this.currentDepth];
   }
 
   set centerX(newX) {
@@ -244,16 +264,15 @@ class Game {
   
   getTile(coord) {
     // retrieves contents of a tile
-    const newZ = coord.z || this.currentDepth;
+    const newZ = coord.z ?? this.currentDepth;
     if (this._stages[newZ].contains(coord)) {
-      return this.stage.getValue(coord);
+      return this.stages[newZ].getValue(coord);
     } else {
       return false;
     }
   }
 
   setTile(coord, value) {
-    //const [x,y,z] = [coord.x,coord.y,coord.z]; 
     this._stages[coord.z].setValue(coord,value);
   }
   
@@ -334,7 +353,7 @@ class Game {
     // todo: experiment with floor difference affecting speed/keeping other
     //  floors active. may need dumbed down actions if so or perf will tank
     //  or only special monsters can avoid getting removed from scheduler
-    const targetDepth = depth ?? this._currentDepth;
+    const targetDepth = depth ?? this.currentDepth;
     const scheduler = this.scheduler;
     const ents = this._entities[targetDepth];
     let ent;
@@ -435,17 +454,67 @@ class Game {
       regionList = newStage.regionKeys;
       let regionCount = regionList.length;
       let regionVolume = newStage.regionVolume;
+      let index, targets, target;
       if (regionVolume > minVolume && 
         regionCount >= minRegions &&
         regionCount <= maxRegions) {
         if (depth === 0) {
-          let index = regionList[regionCount-1];
-          let targets = newStage.regions[index];
-          let target = targets[this.getRandomInt(1,targets.length-1)];
-          this.setTile(target, new Tile(game.tiles['hole']));
+          if (this.bias) {
+            // bias starts toward 'end' region
+            index = regionList[regionCount-1]
+          } else {
+            // no bias skips wall region, starts at 1+
+            index = regionList[1];
+          }
+          targets = newStage.regions[index];
+          let target = this.getTile(
+            targets[this.getRandomInt(1,targets.length-1)]
+          );
+          //let exit = new Tile(game.tiles['hole']);
+          //newStage.mainExit = exit;
+          //exit.region = target.region;
+          //this.setTile(target, exit);
+          pass = true
+        } else {
+          const lastStage = game.stages[depth-1];
+          let lastTargets, exitTarget, enterTarget;
+          if (this.bias && (depth % 2 > 0)) {
+            lastTargets = lastStage.lastRegion;
+          } else if (!this.bias && (depth % 2 > 0)) {
+            lastTargets = lastStage.firstRegion;
+          } else if (this.bias && (depth % 2 === 0)) {
+            lastTargets = lastStage.firstRegion;
+          } else {
+            lastTargets = lastStage.lastRegion;
+          }
+          for (let i = 0; i < lastTargets.length; i++) {
+            let exitCoord = lastTargets[i];
+            let enterCoord = {};
+            [enterCoord.x, enterCoord.y, enterCoord.z] = [exitCoord.x, exitCoord.y, exitCoord.z + 1];
+            exitTarget = game.getTile(exitCoord);
+            enterTarget = game.getTile(enterCoord);
+            if (enterTarget.passable && exitTarget.passable && !pass) {
+              let exit = new Tile(game.tiles['hole']);
+              //lastStage.mainExit = exit;
+              exit.region = exitTarget.region;
+              this.setTile(exitTarget, exit);
+              console.log(exit);
+              let entrance = new Tile(game.tiles['ladder']);
+              entrance.region = enterTarget.region;
+              this.setTile(enterTarget, entrance);
+              //console.log(lastStage.mainExit);
+              //console.log(lastStage.mainEntrance);
+              pass = true
+            }
+            
+          }
+          //// even levels are modulo 1 because depth is index 0
+          //if (depth % 2 > 0) {
+          ////  console.log(this.bias);
+          ////  console.log(this.coinFlip);
+          //}
         }
-        pass = true;
-        console.log(newStage.regions);
+        //console.log(newStage.regions);
       }
     }
   // end of makeStage()
@@ -466,6 +535,19 @@ class Game {
       entity.x = coord.x;
       entity.y = coord.y;
       entity.z = coord.z;
+      if (entity.z !== this.currentDepth) {
+        const currentEntities = this.entities;
+        this.currentDepth = entity.z;
+        const targetEntities = this.entities;
+        currentEntities.slice(currentEntities.indexOf(entity), 1);
+        targetEntities.push(entity);
+        if (entity.player) {
+          // todo: have scheduler keep all entities, only entities within
+          // x no. of floors will act
+          this.unloadScheduler();
+          this.loadScheduler(entity.z);
+        }
+      }
       return true;
     }
   }
@@ -499,10 +581,17 @@ class Game {
       regionCount = regionList.length;
       stageSettings = entitySettings.stageData[i];
       if (i === 0) {
-        targets = stage.regions[1];
+        if (this.bias) {
+          // bias starts toward 'end' region
+          index = regionList[1];
+        } else {
+          // no bias skips wall region, starts at 1+
+          index = regionList[regionCount-1];
+        }
+        targets = stage.regions[index];
         target = targets[this.getRandomInt(1,targets.length-1)];
         let player = this.player;
-        game.addEntity(player, target);
+        this.addEntity(player, target);
       }
       if (stageSettings) {
         let entities = Object.keys(stageSettings);

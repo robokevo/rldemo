@@ -187,8 +187,8 @@ class Entity extends Glyph {
   expire() {
     // todo: drops
     // todo: fold expiration message into attack message, announce at once
-    const messsage = `The ${this.name} has expired!`;
-    this.announce(messsage, 5);
+    const message = `The ${this.name} has expired!`;
+    this.announce(message, 5);
   }
 
   getSpeed() {
@@ -244,15 +244,28 @@ class Entity extends Glyph {
     coord.y = coord.y + this.y;
     coord.z = coord.z + this.z;
     let result = game.isTileFree(coord);
+    let tile = game.getTile(coord);
     if (result && this.mobile) {
-      game.move(this,coord);
-      result = true;
+      if (tile.exit) {
+        if (tile.direction === 'down') {
+          coord.z++;
+          this.announce(`You descend to level ${coord.z+1}`, 1);
+          game.move(this,coord);
+          result = true;
+        } else if (tile.direction === 'up') {
+          coord.z--;
+          this.announce(`You ascend to level ${coord.z+1}`, 1);
+          game.move(this,coord);
+          result = true;
+        } 
+      } else {
+        game.move(this,coord);
+        result = true;
+      }
       return result;
     }
     const ent = game.getEntity(coord);
-    let tile;
     if (!ent) {
-      tile = game.getTile(coord);
       if (tile.destructible) {
         game.destroyTile(tile);
         result = true;

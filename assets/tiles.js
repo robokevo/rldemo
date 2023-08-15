@@ -32,6 +32,7 @@ class Tile extends Glyph{
     this._destroyed = settings._destroyed ?? 'floor';
     this._region = settings.region ?? null;
     this._exit = settings.exit ?? false;
+    this._direction = settings.direction ?? null;
   }
 
   get destructible() {
@@ -45,6 +46,9 @@ class Tile extends Glyph{
 
   // todo: delete this after test
   get char() {
+    if (this.exit) {
+      return this._char;
+    }
     if (this.region > 0) {
       return this.region;
     } else {
@@ -52,11 +56,15 @@ class Tile extends Glyph{
     }
   }
 
+  get direction() {
+    return this._direction;
+  }
+
   get destroyed() {
     return this._destroyed;
   }
 
-  get isExit() {
+  get exit() {
     return this._exit;
   }
 

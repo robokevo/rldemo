@@ -96,9 +96,8 @@ APP_SETTINGS.viewData = {
       z:  function(main) {
         const game = main.view.state;
         const player = game.player;
-        const range = player.rangePoints(2);
-        console.log(range);
-        console.log(game.entitiesInRange(range[0], range[1]));
+        console.log(player);
+        console.log(game);
       },
     },
     load: function() {
@@ -364,7 +363,7 @@ APP_SETTINGS.viewData = {
           // todo: concat a row of glyphs and call drawText instead of individual calls
           for (let x = topLeftX; x < topLeftX + dWidth; x++) {
             for (let y = topLeftY; y < topLeftY + dHeight; y++) {
-              let tile = game.getTile({x:x,y:y});
+              let tile = game.getTile({x:x,y:y,z:player.z});
               if (!tile) {
                 tile = game.noTile;
               }
@@ -472,13 +471,15 @@ APP_SETTINGS.gameData = {
       passable: true,
       exit: true,
       // todo: straighten out directionality
-      direction: -1,
+      direction: 'down',
     },
     ladder: {
-      char: '\u{1F573}',
+      char: '\u{1FA9C}',
       fgColor: '#aa2222',
       bgColor: '#900000',
       passable: true,
+      exit: true,
+      direction: 'up',
     }
   // end of tileData
   },
