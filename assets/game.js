@@ -123,8 +123,9 @@ class Game {
     return this._view;
   }
 
-  get entities() {
-    return this._entities[this.currentDepth];
+  entities(depth) {
+    const targetDepth = depth ?? this.currentDepth;
+    return this._entities[targetDepth];
   }
 
   set centerX(newX) {
@@ -145,17 +146,18 @@ class Game {
 
   addEntity(entity,coord) {
     //todo: check for entity as well as free tile
+    let depth;
     if (!coord) {
       let freeXYZ = this.freeTile();
       entity.x = freeXYZ.x;
       entity.y = freeXYZ.y;
-      entity.z = freeXYZ.z;
+      depth = entity.z = freeXYZ.z;
     } else {
       entity.x = coord.x;
       entity.y = coord.y;
-      entity.z = coord.z;
+      depth = entity.z = coord.z;
     }
-    this.entities.push(entity);
+    this.entities(depth).push(entity);
     if (!this.paused) {
       this.scheduler.add(entity, true);
     }
@@ -182,10 +184,10 @@ class Game {
     const z = coord.z ?? this._currentDepth;
     const [x, y] = [coord.x, coord.y];
     //todo: does entities need to get moved to a grid or map object?
-    const entList = this.entities
+    const entList = this.entities(coord.z);
     let result = false;
     let ent;
-    if (this.entities) {
+    if (entList.length>0) {
       for (let i = 0; i < entList.length; i++) {
         ent = entList[i];
         if (
@@ -355,7 +357,7 @@ class Game {
     //  or only special monsters can avoid getting removed from scheduler
     const targetDepth = depth ?? this.currentDepth;
     const scheduler = this.scheduler;
-    const ents = this._entities[targetDepth];
+    const ents = this.entities(targetDepth);
     let ent;
     for (let i = 0; i < ents.length; i++) {
       ent = ents[i];
@@ -372,7 +374,7 @@ class Game {
     // todo: not constrain map size to static game size
       const generator = new ROT.Map.Cellular(this.width, this.height);
       generator.randomize(0.5);
-      const iterations = 20;
+      const iterations = 10;
       // every iteration smoothens map
       for (let i = 0; i < iterations; i++){
         generator.create();
@@ -534,19 +536,21 @@ class Game {
     if (this._stages[coord.z].contains(coord)) {
       entity.x = coord.x;
       entity.y = coord.y;
-      entity.z = coord.z;
-      if (entity.z !== this.currentDepth) {
-        const currentEntities = this.entities;
-        this.currentDepth = entity.z;
-        const targetEntities = this.entities;
-        currentEntities.slice(currentEntities.indexOf(entity), 1);
-        targetEntities.push(entity);
+      if (coord.z != this.currentDepth) {
+        //game.pause();
+        //this.removeEntity(entity);
+        entity.z = coord.z;
+        //this.currentDepth = coord.z;
+        //this.addEntity(entity);
+        //console.log(this._entities[coord.z].splice(this._entities[coord.z].indexOf(entity)[0], 1));
+        //this._entities[coord.z].push(entity);
         if (entity.player) {
           // todo: have scheduler keep all entities, only entities within
-          // x no. of floors will act
-          this.unloadScheduler();
-          this.loadScheduler(entity.z);
+          // x no. of floors will
+          //this.unloadScheduler();
+          //this.loadScheduler(entity.z);
         }
+        //game.unPause();
       }
       return true;
     }
@@ -614,12 +618,12 @@ class Game {
   }
 
   removeEntity(entity) {
-    let entities = this.entities;
+    let entities = this.entities(entity.z);
     let ent;
     for (let i = 0; i < entities.length; i++) {
       ent = entities[i];
       if (ent===entity) {
-        if (entity.actor) {
+        if (entity.actor && this.paused) {
           this.scheduler.remove(entity);
         };
         entities.splice(i,1);
@@ -646,7 +650,7 @@ class Game {
     this.scheduler.clear();
   }
 
-  unpause() {
+  unPause() {
     this._paused = false;
   }
 // end of Game class definition

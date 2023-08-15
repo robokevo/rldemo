@@ -111,7 +111,7 @@ APP_SETTINGS.viewData = {
       } else {
         console.log(game);
       }
-      game.unpause();
+      game.unPause();
       this.render();
     },
     unload: function() {
@@ -350,7 +350,7 @@ APP_SETTINGS.viewData = {
           const dWidth = this.width;
           const cursor = game.cursor;
           const origin = this.origin;
-          const entities = game.entities;
+          const entities = game.entities();
           // todo: link top left xy to specific panel
           // todo: 2-3 tile buffer before screen pan to avoid jerking camera
           //  via editing game 'cursor' object
