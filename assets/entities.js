@@ -251,6 +251,7 @@ class Entity extends Glyph {
     let result = game.isTileFree(coord);
     let tile = game.getTile(coord);
     if (result && this.mobile) {
+      // todo: check if entity is blocking exit
       if (tile.exit) {
         if (tile.direction === 'down') {
           coord.z++;
