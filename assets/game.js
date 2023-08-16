@@ -636,6 +636,7 @@ class Game {
       ent = entities[i];
       if (ent===entity) {
         entities.splice(i,1);
+        this.scheduler.remove(ent);
         break
       }
     }
