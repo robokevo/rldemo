@@ -146,18 +146,17 @@ class Game {
 
   addEntity(entity,coord) {
     //todo: check for entity as well as free tile
-    let depth;
     if (!coord) {
       let freeXYZ = this.freeTile();
       entity.x = freeXYZ.x;
       entity.y = freeXYZ.y;
-      depth = entity.z = freeXYZ.z;
+      entity.z = freeXYZ.z;
     } else {
       entity.x = coord.x;
       entity.y = coord.y;
-      depth = entity.z = coord.z;
+      entity.z = coord.z;
     }
-    this.entities(depth).push(entity);
+    this.entities(entity.z).push(entity);
     if (!this.paused) {
       this.scheduler.add(entity, true);
     }
@@ -347,7 +346,7 @@ class Game {
     return result;
   }
 
-  loadScheduler(depth) {
+  loadScheduler() {
     // loads ROT scheduler with list of entities; entities need .act() to
     //  lock and unlock engine plus getSpeed() for speed scheduler
 
@@ -355,16 +354,29 @@ class Game {
     // todo: experiment with floor difference affecting speed/keeping other
     //  floors active. may need dumbed down actions if so or perf will tank
     //  or only special monsters can avoid getting removed from scheduler
-    const targetDepth = depth ?? this.currentDepth;
+    //const targetDepth = depth ?? this.currentDepth;
+    //const scheduler = this.scheduler;
+    //const ents = this.entities(targetDepth);
+    //let ent;
+    //for (let i = 0; i < ents.length; i++) {
+    //  ent = ents[i];
+    //  if (ent.actor) {
+    //    scheduler.add(ents[i], true);
+    //  }
+    //}
     const scheduler = this.scheduler;
-    const ents = this.entities(targetDepth);
-    let ent;
-    for (let i = 0; i < ents.length; i++) {
-      ent = ents[i];
-      if (ent.actor) {
-        scheduler.add(ents[i], true);
+    const depth = this.depth;
+    for (let i = 0; i < depth; i++) {
+      const ents = this.entities(i);
+      let ent;
+      for (let j = 0; j < ents.length; j++) {
+        ent = ents[j];
+        if (ent.actor) {
+          scheduler.add(ents[j], true);
+        }
       }
     }
+    
   }
 
   makeStage(currentDepth) {
@@ -623,9 +635,6 @@ class Game {
     for (let i = 0; i < entities.length; i++) {
       ent = entities[i];
       if (ent===entity) {
-        if (entity.actor && this.paused) {
-          this.scheduler.remove(entity);
-        };
         entities.splice(i,1);
         break
       }

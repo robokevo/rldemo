@@ -127,16 +127,17 @@ class Entity extends Glyph {
     //  until rts
     // todo: add range limit to avoid distant characters eating processor
     const game = this.game;
-      if (this.z === game.player.z) {
+    if (this.z === game.player.z) {
+      // todo: more range-specific activities regarding player
       game.engine.lock();
       //console.log(this.name+'('+this.x+','+this.y+')');
       if (this.spreader) {
         this.spread();
       }
       game.engine.unlock();
-      } else {
-        game.removeEntity(this);
-      }
+    } else {
+      // todo: implement idle
+    }
   }
 
   announce(message, radius) {
