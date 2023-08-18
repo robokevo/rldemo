@@ -33,6 +33,7 @@ class Tile extends Glyph{
     this._region = settings.region ?? null;
     this._exit = settings.exit ?? false;
     this._direction = settings.direction ?? null;
+    this._transparent = settings.transparent ?? false;
   }
 
   get destructible() {
@@ -42,6 +43,10 @@ class Tile extends Glyph{
   get passable() {
     // todo: check if there's an entity that is passable on tile
     return this._passable;
+  }
+
+  get transparent() {
+    return this._transparent;
   }
 
   // todo: delete this after test

@@ -472,6 +472,7 @@ APP_SETTINGS.gameData = {
       exit: true,
       // todo: straighten out directionality
       direction: 'down',
+      translucent:  true,
     },
     ladder: {
       char: '\u{1FA9C}',
@@ -480,6 +481,7 @@ APP_SETTINGS.gameData = {
       passable: true,
       exit: true,
       direction: 'up',
+      translucent:  false,
     }
   // end of tileData
   },
