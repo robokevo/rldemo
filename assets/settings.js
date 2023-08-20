@@ -511,7 +511,7 @@ APP_SETTINGS.gameData = {
       passable: true,
       exit: true,
       direction: 'up',
-      tranparent:  false,
+      transparent:  true,
     }
   // end of tileData
   },
