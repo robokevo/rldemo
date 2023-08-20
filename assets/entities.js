@@ -21,7 +21,7 @@ class Entity extends Glyph {
     this._offspring = subsettings.offspring || 0;
     this._messages = subsettings.messages || [];
     this._hearing = subsettings.hearing || true;
-    this._sightRadius = subsettings.sightRadius || 5;
+    this._sightRadius = subsettings.sightRadius || 4;
     this._known = {};
     //tracks explored tiles
   }

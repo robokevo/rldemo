@@ -533,7 +533,7 @@ class Game {
             let tile = newStage.getTile({x:x,y:y});
             return tile.transparent;
             },
-          {topology:8}
+          {topology:4}
         );
         //console.log(newStage.regions);
       }
