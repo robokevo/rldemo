@@ -340,11 +340,13 @@ APP_SETTINGS.viewData = {
         inputs: {
         },
         render: function() {
+          //  tile.lastKnown = tile.char;
           const view = this.view;
           const display = view.display;
           const game = view.state;
           const player = game.player;
-          const main = view.main;
+          const stage = game.stage;
+          // const main = view.main;
           // rendering game area
           const dHeight = this.height;
           const dWidth = this.width;
@@ -359,6 +361,14 @@ APP_SETTINGS.viewData = {
           // let topLeftY = Math.max(0, cursor.y - (dHeight/2));
           const topLeftX = cursor.x - (dWidth/2);
           const topLeftY = cursor.y - (dHeight/2);
+          stage.fov.compute(
+            player.x,
+            player.y,
+            player.sightRadius,
+            (x, y, radius, visibility ) => {
+              player.setKnown(x, y);  
+            }); // todo: wtf does visibility
+
           // iterating through map tiles and rendering
           // todo: concat a row of glyphs and call drawText instead of individual calls
           for (let x = topLeftX; x < topLeftX + dWidth; x++) {
@@ -377,25 +387,27 @@ APP_SETTINGS.viewData = {
             }
           }
           // render entities
-          let entity, eX, eY, eZ;
+          let entity, eX, eY;
           for (let i=0; i < entities.length;i++) {
             entity = entities[i];
-            eX = entity.x;
-            eY = entity.y;
-            eZ = entity.z;
-            // todo: save tile colors on entity's first move, show as defaults
-            let tile = game.getTile(entity);
-            if (eX >= topLeftX && eY >= topLeftY
-              && eX < topLeftX + dWidth
-              && eY < topLeftY + dHeight){
-              display.draw(
-                origin.x + eX - topLeftX,
-                origin.y + eY - topLeftY,
-                entity.char,
-                tile.fgColor,
-                tile.bgColor
-              );
-            }
+            //if (entity!==player) {
+              eX = entity.x;
+              eY = entity.y;
+              eZ = entity.z;
+              // todo: save tile colors on entity's first move, show as defaults
+              let tile = game.getTile(entity);
+              if (eX >= topLeftX && eY >= topLeftY
+                && eX < topLeftX + dWidth
+                && eY < topLeftY + dHeight){
+                display.draw(
+                  origin.x + eX - topLeftX,
+                  origin.y + eY - topLeftY,
+                  entity.char,
+                  tile.fgColor,
+                  tile.bgColor
+                );
+              }
+            //}
           }
           // render over left boarder to hide overhang of large emoji
           let filler = '-';

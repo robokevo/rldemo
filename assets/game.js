@@ -28,6 +28,7 @@ class Game {
     for (let i = 0; i < this._depth; i++) {
       this._entities[i] = [];
     }
+    this._topology = 8;
   }
 
   get bias() {
@@ -266,11 +267,7 @@ class Game {
   getTile(coord) {
     // retrieves contents of a tile
     const newZ = coord.z ?? this.currentDepth;
-    if (this._stages[newZ].contains(coord)) {
-      return this.stages[newZ].getValue(coord);
-    } else {
-      return false;
-    }
+    return this._stages[newZ].getTile(coord);
   }
 
   setTile(coord, value) {
@@ -283,6 +280,7 @@ class Game {
     newTile.x = tile.x;
     newTile.y = tile.y;
     newTile.z = tile.z;
+    newTile.lastKnown = tile.lastKnown;
     // todo: rend tile returns loot into newtile's loot function
     tile.rend();
     this.setTile(tile,newTile);
@@ -414,6 +412,7 @@ class Game {
           newTile.z = currentDepth;
           newStage.setValue(coord,newTile);
         }
+        newTile.stage = newStage;
       });
       // walking map for region setup
       let coord = {x: 0, y: 0};
@@ -528,6 +527,16 @@ class Game {
           ////  console.log(this.coinFlip);
           //}
         }
+        newStage.fov = new ROT.FOV.PreciseShadowcasting(
+          (x, y) => {
+            // callback for FOV engine; toggles known state of tile
+            // todo(?): make tile item more generic to hold its own states better
+            console.log(this);
+            let tile = newStage.getTile({x:x,y:y});
+            return tile.transparency;
+            },
+          {topology:8}
+        );
         //console.log(newStage.regions);
       }
     }

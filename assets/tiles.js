@@ -27,6 +27,7 @@ class Glyph extends Point {
 class Tile extends Glyph{
   constructor(settings) {
     super(settings)
+    this._stage = null;
     this._destructible = settings.destructible ?? false;
     this._passable = settings.passable ?? false;
     this._destroyed = settings._destroyed ?? 'floor';
@@ -34,6 +35,7 @@ class Tile extends Glyph{
     this._exit = settings.exit ?? false;
     this._direction = settings.direction ?? null;
     this._transparent = settings.transparent ?? false;
+    this._lastKnown = null;
   }
 
   get destructible() {
@@ -78,6 +80,15 @@ class Tile extends Glyph{
     return;
   }
 
+  get lastKnown() {
+    // todo: implement 'concussion' or things to forget
+    return this._lastKnown;
+  }
+
+  set lastKnown(char) {
+    this._lastKnown = char;
+  }
+
   get region() {
     if (this._region === null) {
       return -1;
@@ -88,6 +99,14 @@ class Tile extends Glyph{
 
   set region(region) {
     this._region = region;
+  }
+
+  get stage() {
+    return this._stage;
+  }
+
+  set stage(stageData) {
+    this._stage = stageData;
   }
 
   rend() {

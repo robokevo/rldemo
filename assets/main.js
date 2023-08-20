@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
   let supported = true;
   let settings = APP_SETTINGS;
   if (supported) {
+    console.log(ROT.DIRS);
     // initializing new ROT display object
     // todo: read window size/media queries during init()
     //settings.appData.displayWidth = 80;

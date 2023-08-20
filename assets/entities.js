@@ -21,6 +21,9 @@ class Entity extends Glyph {
     this._offspring = subsettings.offspring || 0;
     this._messages = subsettings.messages || [];
     this._hearing = subsettings.hearing || true;
+    this._sightRadius = subsettings.sightRadius || 5;
+    this._known = {};
+    //tracks explored tiles
   }
 
   // todo: get bearing() to return absolute bearing of entity
@@ -99,6 +102,10 @@ class Entity extends Glyph {
 
   get player() {
     return this._player;
+  }
+
+  get sightRadius() {
+    return this._sightRadius;
   }
 
   get spreader() {
@@ -213,6 +220,25 @@ class Entity extends Glyph {
     //  console.log(msg);
     //}
     this._messages.push(msg);
+  }
+
+  getKnown(x, y) {
+    let known = this._known[this.z]
+    if (!known) {
+      known = this._known[this.z] = {};
+    }
+    if (known[x+','+y]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  setKnown(x, y) {
+    if (!this._known[this.z]) {
+      this._known[this.z] = {};
+    }
+    this._known[this.z][x+','+y] = true;
   }
 
   setPos(coord) {

@@ -7,9 +7,11 @@ class Stage extends Grid {
   };
   this._regionKeys = null;
   this._depth = null;
+  this._fov = null;
   // 0th region
   // todo: walls as 0th region
   this._game = game;
+  this._stage = null;
   this._mainExit = null;
   }
   
@@ -28,6 +30,14 @@ class Stage extends Grid {
   
   get regionKeys() {
     return Object.keys(this._regions).sort();    
+  }
+
+  get fov() {
+    return this._fov;
+  }
+  
+  set fov(newFov) {
+    this._fov = newFov;
   }
 
   get game() {
@@ -53,7 +63,16 @@ class Stage extends Grid {
   set mainExit(newExit) {
     this._mainExit = newExit;
   }
-  
+
+  getTile(coord) {
+    // todo: replace game.getTile()
+    if (this.contains(coord)) {
+      return this.getValue(coord);
+    } else {
+      return false;
+    }
+  }
+
   coordInRegion(coord, region) {
     return this._regions[region].includes(coord);
   }
