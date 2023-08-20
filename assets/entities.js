@@ -226,19 +226,17 @@ class Entity extends Glyph {
     let known = this._known[this.z]
     if (!known) {
       known = this._known[this.z] = {};
-    }
-    if (known[x+','+y]) {
-      return true;
     } else {
-      return false;
+      return known[x+','+y];
     }
+    return false;
   }
 
-  setKnown(x, y) {
-    if (!this._known[this.z]) {
-      this._known[this.z] = {};
+  setKnown(tile) {
+    if (!this._known[tile.z]) {
+      this._known[tile.z] = {};
     }
-    this._known[this.z][x+','+y] = true;
+    this._known[tile.z][tile.x+','+tile.y] = tile.char;
   }
 
   setPos(coord) {

@@ -361,28 +361,45 @@ APP_SETTINGS.viewData = {
           // let topLeftY = Math.max(0, cursor.y - (dHeight/2));
           const topLeftX = cursor.x - (dWidth/2);
           const topLeftY = cursor.y - (dHeight/2);
+          const seen = {};
           stage.fov.compute(
             player.x,
             player.y,
             player.sightRadius,
             (x, y, radius, visibility ) => {
-              player.setKnown(x, y);  
+              //todo: implement known with grid if perf is better
+              seen[x+','+y] = true;
             }); // todo: wtf does visibility
-
           // iterating through map tiles and rendering
           // todo: concat a row of glyphs and call drawText instead of individual calls
+          let bgColor, fgColor, char, known;
           for (let x = topLeftX; x < topLeftX + dWidth; x++) {
             for (let y = topLeftY; y < topLeftY + dHeight; y++) {
-              let tile = game.getTile({x:x,y:y,z:player.z});
+              let tile = stage.getTile({x:x,y:y,});
+              known = player.getKnown(x, y);
               if (!tile) {
                 tile = game.noTile;
+              }
+              if (seen[x+','+y]) {
+                player.setKnown(tile);
+                fgColor = tile.fgColor;
+                bgColor = tile.bgColor;
+                char = tile.char;
+              } else if (known !== false) {
+                char = known;
+                fgColor = "gray";
+                bgColor = "black";
+              } else {
+                char = '.';
+                fgColor = "gray";
+                bgColor = "black";
               }
               display.draw(
               origin.x + x - topLeftX,
               origin.y + y - topLeftY,
-              tile.char,
-              tile.fgColor,
-              tile.bgColor
+              char,
+              fgColor,
+              bgColor
               );
             }
           }
@@ -470,6 +487,7 @@ APP_SETTINGS.gameData = {
       fgColor: '#aa2222',
       bgColor: '#900000',
       passable: true,
+      transparent: true,
     },
     none: {
       char: '\u{1F3D4}',
@@ -484,7 +502,7 @@ APP_SETTINGS.gameData = {
       exit: true,
       // todo: straighten out directionality
       direction: 'down',
-      translucent:  true,
+      transparent:  true,
     },
     ladder: {
       char: '\u{1FA9C}',
@@ -493,7 +511,7 @@ APP_SETTINGS.gameData = {
       passable: true,
       exit: true,
       direction: 'up',
-      translucent:  false,
+      tranparent:  false,
     }
   // end of tileData
   },

@@ -511,7 +511,6 @@ class Game {
               //lastStage.mainExit = exit;
               exit.region = exitTarget.region;
               this.setTile(exitTarget, exit);
-              console.log(exit);
               let entrance = new Tile(game.tiles['ladder']);
               entrance.region = enterTarget.region;
               this.setTile(enterTarget, entrance);
@@ -531,9 +530,8 @@ class Game {
           (x, y) => {
             // callback for FOV engine; toggles known state of tile
             // todo(?): make tile item more generic to hold its own states better
-            console.log(this);
             let tile = newStage.getTile({x:x,y:y});
-            return tile.transparency;
+            return tile.transparent;
             },
           {topology:8}
         );
@@ -562,8 +560,6 @@ class Game {
         //this.removeEntity(entity);
         entity.z = coord.z;
         this.currentDepth = coord.z;
-        console.log(this.entities(coord.z).splice(this.entities(coord.z).indexOf(entity)[0], 1));
-        //this.addEntity(entity);
         this.entities(coord.z).push(entity);
         if (entity.player) {
           // todo: have scheduler keep all entities, only entities within
