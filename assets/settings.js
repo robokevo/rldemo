@@ -415,7 +415,8 @@ APP_SETTINGS.viewData = {
               let tile = game.getTile(entity);
               if (eX >= topLeftX && eY >= topLeftY
                 && eX < topLeftX + dWidth
-                && eY < topLeftY + dHeight){
+                && eY < topLeftY + dHeight
+                && seen[eX+','+eY]){
                 display.draw(
                   origin.x + eX - topLeftX,
                   origin.y + eY - topLeftY,
