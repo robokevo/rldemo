@@ -53,14 +53,14 @@ class Tile extends Glyph{
 
   // todo: delete this after test
   get char() {
-    //if (this.exit) {
-    //  return this._char;
-    //}
-    //if (this.region > 0) {
-    //  return this.region;
-    //} else {
+    if (this.exit) {
       return this._char;
-    //}
+    }
+    if (this.region > 0) {
+      return this.region;
+    } else {
+      return this._char;
+    }
   }
 
   get direction() {

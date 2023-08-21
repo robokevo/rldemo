@@ -379,6 +379,7 @@ class Game {
 
   makeStage(currentDepth) {
     const depth = currentDepth || 0;
+    const settings = this.settings;
     let pass = false;
     while (!pass) {
     // todo: not constrain map size to static game size
@@ -389,8 +390,10 @@ class Game {
       for (let i = 0; i < iterations; i++){
         generator.create();
       }
-      let newStage = new Stage(this.width, this.height, this);
-      newStage.depth = depth;
+      console.log(settings);
+      settings.worldData.depth = depth;
+      let newStage = new Stage(this.width, this.height, settings);
+      //newStage.depth = depth;
       this._stages[depth] = newStage;
       // iterate one last time to write to map
       // have to call this locally to be accessed within generator

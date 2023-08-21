@@ -369,10 +369,11 @@ APP_SETTINGS.viewData = {
             (x, y, radius, visibility ) => {
               //todo: implement known with grid if perf is better
               seen[x+','+y] = true;
-            }); // todo: wtf does visibility
+            }); // todo: wtf does visibility do
+            console.log(seen);
           // iterating through map tiles and rendering
           // todo: concat a row of glyphs and call drawText instead of individual calls
-          let bgColor, fgColor, char, known;
+          let fgColor, bgColor, char, known;
           for (let x = topLeftX; x < topLeftX + dWidth; x++) {
             for (let y = topLeftY; y < topLeftY + dHeight; y++) {
               let tile = stage.getTile({x:x,y:y,});
@@ -382,17 +383,17 @@ APP_SETTINGS.viewData = {
               }
               if (seen[x+','+y]) {
                 player.setKnown(tile);
-                fgColor = tile.fgColor;
-                bgColor = tile.bgColor;
+                fgColor = stage.fgColor[0];
+                bgColor = stage.fgColor[1];
                 char = tile.char;
               } else if (known !== false) {
                 char = known;
-                fgColor = "gray";
-                bgColor = "black";
+                fgColor = stage.bgColor[0];
+                bgColor = stage.bgColor[1];
               } else {
                 char = '.';
-                fgColor = "gray";
-                bgColor = "black";
+                fgColor = stage.bgColor[0];
+                bgColor = stage.bgColor[1];
               }
               display.draw(
               origin.x + x - topLeftX,
@@ -417,12 +418,12 @@ APP_SETTINGS.viewData = {
                 && eX < topLeftX + dWidth
                 && eY < topLeftY + dHeight
                 && seen[eX+','+eY]){
-                display.draw(
+                display.drawOver(
                   origin.x + eX - topLeftX,
                   origin.y + eY - topLeftY,
                   entity.char,
-                  tile.fgColor,
-                  tile.bgColor
+                  null,//tile.fgColor,
+                  null//tile.bgColor
                 );
               }
             //}
@@ -463,7 +464,68 @@ APP_SETTINGS.gameData = {
   worldData:  {
     depth:        6,
     currentDepth: 0,
-    //stages:       {},
+    stageData:       {
+      0: {
+        fgColor: [
+          "#990000",
+          "#CC0000"
+        ],
+        bgColor: [
+          "#330000",
+          "#660000"
+        ]
+      },
+      1: {        
+        fgColor: [
+          "#994C00",
+          "#CC6600"
+        ],
+        bgColor: [
+          "#331900",
+          "#663300"
+        ]
+      },
+      2: {        
+        fgColor: [
+          "#999900",
+          "#CCCC00"
+        ],
+        bgColor: [
+          "#333300",
+          "#666600"
+        ]
+      },
+      3: {        
+        fgColor: [
+          "#4C9900",
+          "#66CC00"
+        ],
+        bgColor: [
+          "#193300",
+          "#336600"
+        ]
+      },
+      4: {        
+        fgColor: [
+          "#009900",
+          "#00CC00"
+        ],
+        bgColor: [
+          "#003300",
+          "#006600"
+        ]
+      },
+      5: {        
+        fgColor: [
+          "#4C0099",
+          "#6600CC"
+        ],
+        bgColor: [
+          "#190033",
+          "#330066"
+        ]
+      },
+    },
     width:        48,
     height:       30,
   // end of worldData

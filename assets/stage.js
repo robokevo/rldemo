@@ -1,16 +1,21 @@
 //import { Grid } from "./utils.js";
 class Stage extends Grid {
-  constructor(width, height, game) {
+  constructor(width, height, settings) {
   super(width, height);
+  let worldData = settings.worldData;
+  let stageData = worldData.stageData[worldData.depth];
+  console.log(stageData);
   this._regions = {
     0: [],
   };
+  this._fgColor = stageData.fgColor || ['#DDDDDD','#FFFFFF'];
+  this._bgColor = stageData.bgColor || ['#000000','#222222'];
   this._regionKeys = null;
-  this._depth = null;
+  this._depth = worldData.depth || 0;
   this._fov = null;
   // 0th region
   // todo: walls as 0th region
-  this._game = game;
+  this._game = settings.game;
   this._stage = null;
   this._mainExit = null;
   }
@@ -30,6 +35,14 @@ class Stage extends Grid {
   
   get regionKeys() {
     return Object.keys(this._regions).sort();    
+  }
+
+  get fgColor() {
+    return this._fgColor;
+  }
+
+  get bgColor() {
+    return this._bgColor;
   }
 
   get fov() {
