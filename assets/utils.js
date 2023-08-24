@@ -35,6 +35,11 @@ class Point {
     this._z = newZ;
   }
 
+  getDistance(point) {
+    // returns distance between two points on the same z level
+    return Math.sqrt((this.x - point.x)**2 + (this.y - point.y)**2);
+  }
+
   rangePoints(radius) {
     // returns start and end coordinates for a given range
     const range = [];

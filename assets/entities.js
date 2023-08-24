@@ -23,6 +23,7 @@ class Entity extends Glyph {
     this._hearing = subsettings.hearing || true;
     this._sightRadius = subsettings.sightRadius || 4;
     this._known = {};
+    this._origin = null;
     //tracks explored tiles
   }
 
@@ -62,6 +63,14 @@ class Entity extends Glyph {
     // returns if this entity is capable of hearing
     // todo: status effects
     return this._hearing;
+  }
+
+  get origin() {
+    return this._origin;
+  }
+
+  set origin(newOrigin) {
+    this._origin = newOrigin;
   }
 
   get hp() {

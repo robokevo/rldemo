@@ -157,6 +157,7 @@ class Game {
       entity.y = coord.y;
       entity.z = coord.z;
     }
+    entity.origin = entity.coord;
     this.entities(entity.z).push(entity);
     if (!this.paused) {
       this.scheduler.add(entity, true);
