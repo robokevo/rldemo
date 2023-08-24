@@ -54,6 +54,10 @@ class Entity extends Glyph {
     return this.baseDefense;
   }
 
+  get fov() {
+    return this.game.stage.fov;
+  }
+
   get game() {
     // returns encapsulating game object for context
     return this._game;
@@ -241,6 +245,21 @@ class Entity extends Glyph {
     return false;
   }
 
+  search(target) {
+    let found = false;
+    this.fov.compute(
+      this.x,
+      this.y,
+      this.sightRadius,
+      (x, y, r, vis) => {
+        if (target.x === x && target.y === y) {
+          found = true;
+        }
+      }
+    );
+    return found;
+  }
+
   setKnown(tile) {
     if (!this._known[tile.z]) {
       this._known[tile.z] = {};
@@ -327,5 +346,6 @@ class Player extends Entity {
 
   act() {
     this.game.engine.lock();
+    console.log(this.search(this.origin));
   }
 }

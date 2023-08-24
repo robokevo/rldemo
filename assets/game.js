@@ -52,6 +52,7 @@ class Game {
   get player() {
     return this._player;
   }
+
   set player(newPlayer) {
     this._player = newPlayer;
   }
@@ -159,9 +160,7 @@ class Game {
     }
     entity.origin = entity.coord;
     this.entities(entity.z).push(entity);
-    if (!this.paused) {
-      this.scheduler.add(entity, true);
-    }
+    this.scheduler.add(entity, true);
   }
 
 
@@ -650,7 +649,7 @@ class Game {
       }
     }
   }  
-  
+
   sendMessage(message, sender, radius) {
     // sends a message to entities in range
     // todo: ability to flag if messages need line of sight/hearing via A*
