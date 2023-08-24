@@ -21,7 +21,7 @@ class Game {
     this._player = new Player(settings, settings.playerData);
     // scheduler
     // todo: speed scheduler, realtime engine
-    this._scheduler = new ROT.Scheduler.Simple();
+    this._scheduler = new ROT.Scheduler.Speed();
     this._engine = new ROT.Engine(this._scheduler);
     // entities will be kept in list and be loaded/unloaded per floor;
     this._entities = [];
@@ -536,7 +536,7 @@ class Game {
             let tile = newStage.getTile({x:x,y:y});
             return tile.transparent;
             },
-          {topology:4}
+          {topology:8}
         );
         //console.log(newStage.regions);
       }

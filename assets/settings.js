@@ -370,7 +370,6 @@ APP_SETTINGS.viewData = {
               //todo: implement known with grid if perf is better
               seen[x+','+y] = true;
             }); // todo: wtf does visibility do
-            console.log(seen);
           // iterating through map tiles and rendering
           // todo: concat a row of glyphs and call drawText instead of individual calls
           let fgColor, bgColor, char, known;
@@ -586,6 +585,7 @@ APP_SETTINGS.gameData = {
     speed:  100,
     basePower: 3,
     maxHp:  10,
+    sightRadius:  7,
   },
 
   entityData: {
@@ -595,67 +595,130 @@ APP_SETTINGS.gameData = {
         char: '\u{1F344}',
         mobile: false,
         target: true,
-        speed:  0,
+        speed:  25,
         hp: 2,
         spreader: true,
-        spreadRate: .03,
+        spreadRate: .02,
         spreadRange: 1,
         offspring:  1,
         hearing:  false,
       },
-      mosquito: {
-        name: 'mosquito',
-        char: '\u{1F99F}',
-        mobile: false,
-        speed:  500,
-        fgColor: 'white',
-        target: true,
-        maxHp: 1,
-      },
       bat: {
         name: 'bat',
         char: '\u{1F987}',
-        mobile: false,
+        mobile: true,
         speed:  200,
         fgColor: 'white',
         target: true,
         maxHp: 4,
       },
-      rhinoceros: {
-        name: 'rhinoceros',
-        char: '\u{1F98F}',
-        mobile: false,
-        speed:  200,
+      robot: {
+        name: 'robot',
+        char: '\u{1F916}',
+        mobile: true,
+        speed:  50,
         fgColor: 'white',
         target: true,
-        maxHp: 25,
-        baseDefense:  80,
+        maxHp: 10,
+        baseDefense:  40,
+      },
+      zombie: {
+        name: 'zombie',
+        char: '\u{1F9DF}',
+        mobile: true,
+        speed:  70,
+        fgColor: 'white',
+        target: true,
+        maxHp: 6,
+        baseDefense:  5,
       },
     // end of bestiary
     },
     stageData: {
       0: {
         mushroom: {
-          qty: 1,
-          },
-        mosquito: {
-          qty: 1,
-          },
+          qty: 5,
+        },
         bat: {
-          qty: 1,
-          },
-        rhinoceros: {
+          qty: 7,
+        },
+        robot: {
           qty: 2,
+        },
+        zombie: {
+          qty: 0,
         }
       },
       1: {
         mushroom: {
           qty: 5,
-          },
-        mosquito: {
-          qty: 6,
-          }
+        },
+        bat: {
+          qty: 7,
+        },
+        robot: {
+          qty: 2,
+        },
+        zombie: {
+          qty: 2,
+        }
       },
+      2: {
+        mushroom: {
+          qty: 5,
+        },
+        bat: {
+          qty: 7,
+        },
+        robot: {
+          qty: 2,
+        },
+        zombie: {
+          qty: 5,
+        }
+      },
+      3: {
+        mushroom: {
+          qty: 4,
+        },
+        bat: {
+          qty: 7,
+        },
+        robot: {
+          qty: 3,
+        },
+        zombie: {
+          qty: 6,
+        }
+      },
+      4: {
+        mushroom: {
+          qty: 5,
+        },
+        bat: {
+          qty: 8,
+        },
+        robot: {
+          qty: 4,
+        },
+        zombie: {
+          qty: 7,
+        }
+      },
+      5: {
+        mushroom: {
+          qty: 5,
+        },
+        bat: {
+          qty: 10,
+        },
+        robot: {
+          qty: 4,
+        },
+        zombie: {
+          qty: 10,
+        }
+      }
     // end of stage data
     }
   // end of entity data

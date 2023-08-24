@@ -1,0 +1,40 @@
+Todos
+
+Stages:
+- exit sanity checks
+  -- clear placement (e.g. 'soft stone' if surrounded)
+  -- check for entities above/below depth
+  -- entity travel through exits
+- divergent paths ala Spelunky
+- de-center depths/reshape widths dynamically to avoid back/forth predictability
+- region objects with:
+  -- center/corner coordinates
+  -- smart connections
+
+Entities:
+- status effects
+- various detection styles
+  -light/fov
+  -hearing/smell, not seeing, render as '?'
+    -- best hearing/smell as A* or fov comp
+    -- cheap as line-of-sight?
+  -line-of-sight/'night vision'
+  -view angle
+- factions
+- distribute spawning through regions/away from player
+- various default engagements e.g.
+  -- mushrooms instant ko, message 'you pick the mushroom'
+
+Tiles:
+- have colors render via tile bg/fg
+  -- save local copy of level colors
+  -- shade walls, large entities/swarm
+- load/unload tile func that has copy of ent
+- flexible tiles that can switch from wall to floor
+- highlight exit tile somehow (wall shading? different fg color?)
+- hallucination effect - do math to fg/bg colors and alternate on turns
+
+
+Panels:
+- descending darkened text to highlight most recent
+- dynamic palette changes with levels
