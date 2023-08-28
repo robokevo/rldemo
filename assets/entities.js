@@ -166,7 +166,7 @@ class Entity extends Glyph {
       //console.log(this.name+'('+this.x+','+this.y+')');
       let entity, result, path, newX, newY, newZ, tile, clear;
       if (this.intel > 4) {
-        if (this.getDistance(player) === 1) {
+        if (this.getDistance(player) <= 1) {
           this.attack(player);
         } else {
           result = this.search(player); 
@@ -179,19 +179,21 @@ class Entity extends Glyph {
                 entity = game.getEntity({'x':x,'y':y,'z':self.z});
                 tile = stage.getTile({x:x,y:y});
                 //clear = false;
+                // todo: figure out why isTileFree doesn't work here
                 if (entity && entity !== player && entity !== self) {
                   clear = false;
-                //} else if (tile.passable) {
-                //  clear = true;
-                ////} else {
-                ////  clear = false;
+                } else if (tile.passable) {
+                  clear = true;
+                } else {
+                  clear = false;
                 }
-                return true;
+                return clear;
               },
               {topoloy: 8}
             );
             // have to skip first square
             let count = 0;
+            console.log(path);
             path.compute(
               self.x,
               self.y,
@@ -201,7 +203,7 @@ class Entity extends Glyph {
                   //newX = x - self.x;
                   //newY = y - self.y;
                   //self.tryPos({x:newX,y:newY,z:self.z});
-                  self.tryPos({x:x, y:y});
+                  game.move(self,{x:x, y:y, z:self.z});
                 }
                 count++;
               }

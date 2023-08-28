@@ -148,6 +148,17 @@ class Game {
 
   addEntity(entity,coord) {
     //todo: check for entity as well as free tile
+    let depth;
+    if (!coord) {
+      depth = entity.z;
+    } else {
+      depth.z = coord.z;
+    }
+    this.entities(depth).push(entity);
+  }
+
+  spawnEntity(entity,coord) {
+    //todo: check for entity as well as free tile
     if (!coord) {
       let freeXYZ = this.freeTile();
       entity.x = freeXYZ.x;
@@ -160,7 +171,6 @@ class Game {
     }
     entity.origin = entity.coord;
     this.entities(entity.z).push(entity);
-    this.scheduler.add(entity, true);
   }
 
 
@@ -558,12 +568,13 @@ class Game {
     if (this._stages[entity.z].contains(coord)) {
       entity.x = coord.x;
       entity.y = coord.y;
+      entity.z = coord.z ?? entity.z;
       if (coord.z != this.currentDepth) {
         //game.pause();
-        //this.removeEntity(entity);
+        this.removeEntity(entity);
         entity.z = coord.z;
         this.currentDepth = coord.z;
-        this.entities(coord.z).push(entity);
+        this.addEntity(entity);
         if (entity.player) {
           // todo: have scheduler keep all entities, only entities within
           // x no. of floors will
@@ -582,7 +593,7 @@ class Game {
       this.settings,
       this.settings.entityData.bestiary[name]
       );
-    this.addEntity(ent, target);
+    this.spawnEntity(ent, target);
   }
 
   newTile(tileType) {
@@ -615,7 +626,7 @@ class Game {
         targets = stage.regions[index];
         target = targets[this.getRandomInt(1,targets.length-1)];
         let player = this.player;
-        this.addEntity(player, target);
+        this.spawnEntity(player, target);
       }
       if (stageSettings) {
         let entities = Object.keys(stageSettings);
@@ -625,7 +636,7 @@ class Game {
           let instance;
           for (let k = 0; k < entDetails.qty; k++) {
             instance = new Entity(this.settings, entitySettings.bestiary[entity]);
-            this.addEntity(instance);
+            this.spawnEntity(instance);
           }
         }
       }
@@ -644,7 +655,6 @@ class Game {
       ent = entities[i];
       if (ent===entity) {
         entities.splice(i,1);
-        this.scheduler.remove(ent);
         break
       }
     }

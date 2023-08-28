@@ -600,7 +600,7 @@ APP_SETTINGS.gameData = {
     mobile: true,
     speed:  100,
     basePower: 3,
-    maxHp:  10,
+    maxHp:  99,
     sightRadius:  5,
   },
 
@@ -646,7 +646,7 @@ APP_SETTINGS.gameData = {
         name: 'zombie',
         char: '\u{1F9DF}',
         mobile: true,
-        speed:  75,
+        speed:  50,
         fgColor: 'white',
         target: true,
         maxHp: 6,
