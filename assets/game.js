@@ -654,6 +654,9 @@ class Game {
     for (let i = 0; i < entities.length; i++) {
       ent = entities[i];
       if (ent===entity) {
+        if (ent.hp <= 0) {
+          this.scheduler.remove(entity);
+        }
         entities.splice(i,1);
         break
       }

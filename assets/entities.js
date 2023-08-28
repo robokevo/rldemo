@@ -294,7 +294,10 @@ class Entity extends Glyph {
   expire() {
     // todo: drops
     // todo: fold expiration message into attack message, announce at once
-    const message = `The ${this.name} has expired!`;
+    // todo: specific expiration messages related to:
+    //  inherent nature (e.g., 'You ate the mushroom')
+    //  means of expiry ('You were impaled')
+    const message = this.name + " has expired!";
     this.announce(message, 5);
   }
 
