@@ -24,6 +24,8 @@ class Entity extends Glyph {
     this._sightRadius = subsettings.sightRadius || 4;
     this._known = {};
     this._origin = null;
+    // will determine acting path
+    this._intel = subsettings.intel || 0;
     //tracks explored tiles
   }
 
@@ -55,6 +57,7 @@ class Entity extends Glyph {
   }
 
   get fov() {
+    // todo: have entities use fov info from player
     return this.game.stage.fov;
   }
 
@@ -67,6 +70,10 @@ class Entity extends Glyph {
     // returns if this entity is capable of hearing
     // todo: status effects
     return this._hearing;
+  }
+
+  get intel() {
+    return this._intel;
   }
 
   get origin() {
@@ -147,18 +154,76 @@ class Entity extends Glyph {
     //  until rts
     // todo: add range limit to avoid distant characters eating processor
     const game = this.game;
-    if (this.z === game.player.z) {
-      // todo: more range-specific activities regarding player
-      game.engine.lock();
-      //console.log(this.name+'('+this.x+','+this.y+')');
+    const player = game.player;
+    const stage = game.stage;
+    if (this.z === player.z ) {            
       if (this.spreader) {
         this.spread();
       }
+      if (this.getDistance(player) < this.sightRadius) {
+      // todo: more range-specific activities regarding player
+      game.engine.lock();
+      //console.log(this.name+'('+this.x+','+this.y+')');
+      let entity, result, path, newX, newY, newZ, tile, clear;
+      if (this.intel > 4) {
+        if (this.getDistance(player) === 1) {
+          this.attack(player);
+        } else {
+          result = this.search(player); 
+          if (result) {
+            let self = this;
+            path = new ROT.Path.AStar(
+              player.x,
+              player.y,
+              (x,y) => {
+                entity = game.getEntity({'x':x,'y':y,'z':self.z});
+                tile = stage.getTile({x:x,y:y});
+                //clear = false;
+                if (entity && entity !== player && entity !== self) {
+                  clear = false;
+                //} else if (tile.passable) {
+                //  clear = true;
+                ////} else {
+                ////  clear = false;
+                }
+                return true;
+              },
+              {topoloy: 8}
+            );
+            // have to skip first square
+            let count = 0;
+            path.compute(
+              self.x,
+              self.y,
+              (x,y) => {
+                if (count === 1) {
+                  //console.log(x+" "+y);
+                  //newX = x - self.x;
+                  //newY = y - self.y;
+                  //self.tryPos({x:newX,y:newY,z:self.z});
+                  self.tryPos({x:x, y:y});
+                }
+                count++;
+              }
+            );
+          }
+        }
+      } else if (this.intel < 4 && this.intel > 0) {
+        let range = this.rangePoints(1);
+        let target = game.freeTile(range[0], range[1]);
+        if (target) {
+          //newX = target.x - this.x;
+          //newY = target.y - this.y;
+          //newZ = this.z - this.z;
+          //this.tryPos({x:newX,y:newY,z:newZ});
+          this.tryPos({x:target.x,y:target.y});        }
+      }
       game.engine.unlock();
-    } else {
+      } else {
       // todo: implement idle
     }
   }
+}
 
   announce(message, radius) {
     this.game.sendMessage(message, this, radius);
@@ -246,6 +311,7 @@ class Entity extends Glyph {
   }
 
   search(target) {
+    // todo: status effects, different search modes
     let found = false;
     this.fov.compute(
       this.x,
@@ -297,9 +363,9 @@ class Entity extends Glyph {
 
   tryPos(coord) {
     const game = this.game;
-    coord.x = coord.x + this.x;
-    coord.y = coord.y + this.y;
-    coord.z = coord.z + this.z;
+    //coord.x = coord.x + this.x;
+    //coord.y = coord.y + this.y;
+    coord.z = coord.z ?? this.z;
     let result = game.isTileFree(coord);
     let tile = game.getTile(coord);
     if (result && this.mobile) {
@@ -315,7 +381,7 @@ class Entity extends Glyph {
           this.announce(`You ascend to level ${coord.z+1}`, 1);
           game.move(this,coord);
           result = true;
-        } 
+        }
       } else {
         game.move(this,coord);
         result = true;
@@ -346,6 +412,5 @@ class Player extends Entity {
 
   act() {
     this.game.engine.lock();
-    console.log(this.search(this.origin));
   }
 }

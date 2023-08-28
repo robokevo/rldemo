@@ -43,8 +43,12 @@ APP_SETTINGS.viewData = {
     name: "play",
     bgColor: '#700000',
     inputs: {
-      enter:  function() {
-        console.log("pressed Enter in Play");
+      enter:  function(main) {
+        //idle
+        const game = main.view.state;
+        main.view.render();
+        console.log('pass');
+        game.engine.unlock();
       },
       escape:  function(main) {
         console.log("pressed Escape in Play");        
@@ -52,7 +56,10 @@ APP_SETTINGS.viewData = {
       },
       arrowup: function(main) {
         const game = main.view.state;
-        const result = game.player.tryPos({x:0,y:-1,z:0});
+        const player = game.player;
+        const coord = player.coord;
+        coord.y--;
+        const result = player.tryPos(coord);
         main.view.render();
         if (result) {
           game.engine.unlock();
@@ -60,7 +67,10 @@ APP_SETTINGS.viewData = {
       },
       arrowdown: function(main) {
         const game = main.view.state;
-        const result = game.player.tryPos({x:0,y:1,z:0});
+        const player = game.player;
+        const coord = player.coord;
+        coord.y++;
+        const result = player.tryPos(coord);
         main.view.render();
         if (result) {
           game.engine.unlock();
@@ -68,7 +78,10 @@ APP_SETTINGS.viewData = {
       },
       arrowleft: function(main) {
         const game = main.view.state;
-        const result = game.player.tryPos({x:-1,y:0,z:0});
+        const player = game.player;
+        const coord = player.coord;
+        coord.x--;
+        const result = player.tryPos(coord);
         main.view.render();
         if (result) {
           game.engine.unlock();
@@ -76,7 +89,10 @@ APP_SETTINGS.viewData = {
       },
       arrowright: function(main) {
         const game = main.view.state;
-        const result = game.player.tryPos({x:1,y:0,z:0});
+        const player = game.player;
+        const coord = player.coord;
+        coord.x++;
+        const result = player.tryPos(coord);
         main.view.render();
         if (result) {
           game.engine.unlock();
@@ -585,7 +601,7 @@ APP_SETTINGS.gameData = {
     speed:  100,
     basePower: 3,
     maxHp:  10,
-    sightRadius:  7,
+    sightRadius:  5,
   },
 
   entityData: {
@@ -607,10 +623,12 @@ APP_SETTINGS.gameData = {
         name: 'bat',
         char: '\u{1F987}',
         mobile: true,
-        speed:  200,
+        speed:  175,
         fgColor: 'white',
         target: true,
         maxHp: 4,
+        sightRadius:  7,
+        intel:  2,        
       },
       robot: {
         name: 'robot',
@@ -620,17 +638,21 @@ APP_SETTINGS.gameData = {
         fgColor: 'white',
         target: true,
         maxHp: 10,
-        baseDefense:  40,
+        baseDefense:  65,
+        sightRadius:  5,
+        intel:  7,
       },
       zombie: {
         name: 'zombie',
         char: '\u{1F9DF}',
         mobile: true,
-        speed:  70,
+        speed:  75,
         fgColor: 'white',
         target: true,
         maxHp: 6,
         baseDefense:  5,
+        sightRadius:  6,
+        intel:  5,
       },
     // end of bestiary
     },
@@ -643,10 +665,10 @@ APP_SETTINGS.gameData = {
           qty: 7,
         },
         robot: {
-          qty: 2,
+          qty: 3,
         },
         zombie: {
-          qty: 0,
+          qty: 4,
         }
       },
       1: {
@@ -657,10 +679,10 @@ APP_SETTINGS.gameData = {
           qty: 7,
         },
         robot: {
-          qty: 2,
+          qty: 4,
         },
         zombie: {
-          qty: 2,
+          qty: 5,
         }
       },
       2: {
@@ -671,10 +693,10 @@ APP_SETTINGS.gameData = {
           qty: 7,
         },
         robot: {
-          qty: 2,
+          qty: 7,
         },
         zombie: {
-          qty: 5,
+          qty: 8,
         }
       },
       3: {
@@ -685,10 +707,10 @@ APP_SETTINGS.gameData = {
           qty: 7,
         },
         robot: {
-          qty: 3,
+          qty: 8,
         },
         zombie: {
-          qty: 6,
+          qty: 9,
         }
       },
       4: {
@@ -699,10 +721,10 @@ APP_SETTINGS.gameData = {
           qty: 8,
         },
         robot: {
-          qty: 4,
+          qty: 10,
         },
         zombie: {
-          qty: 7,
+          qty: 10,
         }
       },
       5: {
@@ -710,13 +732,13 @@ APP_SETTINGS.gameData = {
           qty: 5,
         },
         bat: {
-          qty: 10,
+          qty: 15,
         },
         robot: {
-          qty: 4,
+          qty: 12,
         },
         zombie: {
-          qty: 10,
+          qty: 12,
         }
       }
     // end of stage data

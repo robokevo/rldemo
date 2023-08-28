@@ -180,6 +180,7 @@ class Game {
   }
 
   getEntity(coord) {
+    // todo: refactor down to stage object
     // returns entity at given tile if there, else returns false
     const z = coord.z ?? this._currentDepth;
     const [x, y] = [coord.x, coord.y];
@@ -390,7 +391,6 @@ class Game {
       for (let i = 0; i < iterations; i++){
         generator.create();
       }
-      console.log(settings);
       settings.worldData.depth = depth;
       let newStage = new Stage(this.width, this.height, settings);
       //newStage.depth = depth;

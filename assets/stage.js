@@ -4,7 +4,6 @@ class Stage extends Grid {
   super(width, height);
   let worldData = settings.worldData;
   let stageData = worldData.stageData[worldData.depth];
-  console.log(stageData);
   this._regions = {
     0: [],
   };
