@@ -236,28 +236,43 @@ class Entity extends Glyph {
     // todo: miss chance based on speed
     const game = this.game;
     let hit = false;
-    let message, damage;
+    let message, damage, subject, object, verb;
+    if (target.player) {
+      subject = this.name;
+      object = 'you';
+    } else {
+      subject = 'You';
+      object = target.name;
+    }
     if (game.getRandom() > 0.2) {
       hit = true;
     }
     // todo: damage types, buffs
     if (hit) {
       damage = 
-      Math.round(
-        (100 - target.defense)/100 *
-        Math.max(
-          Math.round(this.atkPower / 2),
-          Math.round(this.game.getRandom() * this.atkPower)
-        )
-      );
-      if (damage > 0) {
-        message = `You hit the ${target.name} for ${damage} damage!`;
+        Math.round(
+          (100 - target.defense)/100 *
+          Math.max(
+            Math.round(this.atkPower / 2),
+            Math.round(this.game.getRandom() * this.atkPower)
+          )
+        );
+      if (this.player) {
+        if (damage < 1) {
+          verb = ' didn\'t scratch the ' + object;
+        } else {
+          verb = ' hit the ' + object + ' for ' + damage + ' damage!';
+        }
+        message = subject + verb;
       } else {
-        message = `You didn't scratch the ${target.name}!`;
+        if (damage < 1) {
+          verb = ' didn\'t scratch ' + object;
+        } else {
+          verb = ' hits ' + object + ' for ' + damage + ' damage!';
+        }
+        message = subject + verb;
       }
-    } else {
-      message = `You missed the ${target.name}!`;
-    }
+    } 
     this.announce(message, 5);
     if (damage) {
       target.takeDamage(damage);

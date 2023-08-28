@@ -620,7 +620,7 @@ APP_SETTINGS.gameData = {
         hearing:  false,
       },
       bat: {
-        name: 'bat',
+        name: 'Bat',
         char: '\u{1F987}',
         mobile: true,
         speed:  175,
@@ -631,7 +631,7 @@ APP_SETTINGS.gameData = {
         intel:  2,        
       },
       robot: {
-        name: 'robot',
+        name: 'Robot',
         char: '\u{1F916}',
         mobile: true,
         speed:  50,
@@ -643,7 +643,7 @@ APP_SETTINGS.gameData = {
         intel:  7,
       },
       zombie: {
-        name: 'zombie',
+        name: 'Zombie',
         char: '\u{1F9DF}',
         mobile: true,
         speed:  50,
