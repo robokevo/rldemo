@@ -139,7 +139,7 @@ APP_SETTINGS.viewData = {
     panels: {
       main: {
         name: "main",
-        title: "*Moon Miners*",
+        title: "*Moon Minerzz*",
         order:  0,
         borderWidth: 1,
         corners:  ['*','*','\\','\/'],
@@ -164,7 +164,7 @@ APP_SETTINGS.viewData = {
           const fgBgColorStr = '%c{' + this.bgColor + '}';
           const fgColorStr = '%c{' + '#ffbbbb' + '}';
           let filler = bgColorStr + fgBgColorStr + '-'.repeat(
-            Math.floor((this.width-1)/2 - this.title.length/2));
+            Math.floor((this.width-2)/2 - this.title.length/2));
           filler += fgColorStr + bgColorStr + this.title + filler;
           // so many hacks
           // todo: proper title rendering for panels

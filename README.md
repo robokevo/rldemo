@@ -28,4 +28,22 @@ Item + skill systems; deeper item + world integration
 
 ##### 0.6:
 
-Proper module integration
+Proper module integration, look into fastiles js libray for tile rendering.
+
+##### 0.7:
+
+Sound + narrative elements; expand input types.
+
+##### 0.8:
+
+Explore local features (local storage, workers)
+
+##### 0.9:
+
+Robust device support; check for other platform integrations (e.g. itch.io)
+
+##### 1.0:
+
+I speedrun it on twitch
+
+Everything subject to change as I have a full time job and two cats that keep trying to eat plastic for some reason.
