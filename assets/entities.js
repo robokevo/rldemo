@@ -283,7 +283,9 @@ class Entity extends Glyph {
     this.hp = this.hp + value;
     if (this.hp <= 0) {
       this.expire();
-      this.game.removeEntity(this);
+      if (!this.player) {
+        this.game.removeEntity(this);
+      }
     }
   }
 
@@ -297,7 +299,12 @@ class Entity extends Glyph {
     // todo: specific expiration messages related to:
     //  inherent nature (e.g., 'You ate the mushroom')
     //  means of expiry ('You were impaled')
-    const message = this.name + " has expired!";
+    let message;
+    if (this.player) {
+      message = "You have expired! Press [F5] to try again";
+    } else {
+      message = this.name + " has expired!";
+    }
     this.announce(message, 5);
   }
 
