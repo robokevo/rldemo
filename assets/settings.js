@@ -659,86 +659,86 @@ APP_SETTINGS.gameData = {
     stageData: {
       0: {
         mushroom: {
-          qty: 5,
+          qty: 15,
         },
         bat: {
-          qty: 7,
+          qty: 17,
         },
         robot: {
-          qty: 3,
+          qty: 13,
         },
         zombie: {
-          qty: 4,
+          qty: 14,
         }
       },
       1: {
         mushroom: {
-          qty: 5,
+          qty: 15,
         },
         bat: {
-          qty: 7,
+          qty: 17,
         },
         robot: {
-          qty: 4,
+          qty: 14,
         },
         zombie: {
-          qty: 5,
+          qty: 15,
         }
       },
       2: {
         mushroom: {
-          qty: 5,
+          qty: 15,
         },
         bat: {
-          qty: 7,
+          qty: 17,
         },
         robot: {
-          qty: 7,
+          qty: 17,
         },
         zombie: {
-          qty: 8,
+          qty: 18,
         }
       },
       3: {
         mushroom: {
-          qty: 4,
+          qty: 14,
         },
         bat: {
-          qty: 7,
+          qty: 17,
         },
         robot: {
-          qty: 8,
+          qty: 18,
         },
         zombie: {
-          qty: 9,
+          qty: 19,
         }
       },
       4: {
         mushroom: {
-          qty: 5,
+          qty: 15,
         },
         bat: {
-          qty: 8,
+          qty: 18,
         },
         robot: {
-          qty: 10,
+          qty: 20,
         },
         zombie: {
-          qty: 10,
+          qty: 20,
         }
       },
       5: {
         mushroom: {
-          qty: 5,
+          qty: 25,
         },
         bat: {
-          qty: 15,
+          qty: 25,
         },
         robot: {
-          qty: 12,
+          qty: 22,
         },
         zombie: {
-          qty: 12,
+          qty: 22,
         }
       }
     // end of stage data

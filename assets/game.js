@@ -238,33 +238,11 @@ class Game {
     let firstXY, lastXY;
     if ((xOffset === 0) && (yOffset === 0) &&
       (width === this.stage.width) && (height === this.stage.height)) {
-      // warning: can hang if no valid target found
-      // this method only used when placing through whole map
-      // todo: refactor to use getFreeTiles for stage pop
-        //while (!this.isTileFree(coord)) {
-        //  coord.x = Math.floor(this.getRandom() * width);
-        //  if ((coord.x > (width - buffer)) || (coord.x <= buffer)) {
-        //    coord.x = -1;
-        //  }
-        //  coord.y = Math.floor(this.getRandom() * height);
-        //  if ((coord.y > (height - buffer)) || (coord.y <= buffer)) {
-        //    coord.y = -1;
-        //  }
-        //  freeTile = this.getTile(coord);
-        //}
       firstXY = {x:5,y:5};
       lastXY = {x:width-5,y:height-5};
-      //return freeTile;
     } else {
       firstXY = startXY;
       lastXY = endXY;
-      //const freeTiles = this.getFreeTiles(startXY, endXY);
-      //if (freeTiles.length > 0) {
-      //  let choice = this.getRandomInt(0, freeTiles.length - 1);
-      //  return this.getTile(freeTiles[choice]);
-      //} else {
-      //  return false;
-      //}
     }
     const freeTiles = this.getFreeTiles(firstXY, lastXY);
     if (freeTiles.length > 0) {
@@ -356,23 +334,7 @@ class Game {
   }
 
   loadScheduler() {
-    // loads ROT scheduler with list of entities; entities need .act() to
-    //  lock and unlock engine plus getSpeed() for speed scheduler
-
-    // entities will need to get unloaded and reloaded between floors
-    // todo: experiment with floor difference affecting speed/keeping other
-    //  floors active. may need dumbed down actions if so or perf will tank
-    //  or only special monsters can avoid getting removed from scheduler
-    //const targetDepth = depth ?? this.currentDepth;
-    //const scheduler = this.scheduler;
-    //const ents = this.entities(targetDepth);
-    //let ent;
-    //for (let i = 0; i < ents.length; i++) {
-    //  ent = ents[i];
-    //  if (ent.actor) {
-    //    scheduler.add(ents[i], true);
-    //  }
-    //}
+    //
     const scheduler = this.scheduler;
     const depth = this.depth;
     for (let i = 0; i < depth; i++) {

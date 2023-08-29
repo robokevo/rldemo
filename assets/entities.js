@@ -189,11 +189,11 @@ class Entity extends Glyph {
                 }
                 return clear;
               },
+              // todo: read from entity's own topology
               {topoloy: 8}
             );
             // have to skip first square
             let count = 0;
-            console.log(path);
             path.compute(
               self.x,
               self.y,
@@ -203,7 +203,12 @@ class Entity extends Glyph {
                   //newX = x - self.x;
                   //newY = y - self.y;
                   //self.tryPos({x:newX,y:newY,z:self.z});
-                  game.move(self,{x:x, y:y, z:self.z});
+
+                  // one last check to avoid race for spot
+                  let free = game.isTileFree({x:x, y:y, z:self.z});
+                  if (free) {
+                    game.move(self,{x:x, y:y, z:self.z});
+                  }
                 }
                 count++;
               }
@@ -282,10 +287,21 @@ class Entity extends Glyph {
   changeHP(value) {
     this.hp = this.hp + value;
     if (this.hp <= 0) {
+      const game = this.game;
       this.expire();
       if (!this.player) {
-        this.game.removeEntity(this);
+        game.removeEntity(this);
+        game.engine.unlock();
       }
+    }
+  }
+
+  displace() {
+    const game = this.game;
+    const range = this.rangePoints(1);
+    const target = this.freeTile(range[0], range[1]);
+    if (target) {
+      game.move(this, target);
     }
   }
 
@@ -438,6 +454,8 @@ class Player extends Entity {
   }
 
   act() {
-    this.game.engine.lock();
+    if (this.hp > 0) {
+      this.game.engine.lock();
+    }
   }
 }
