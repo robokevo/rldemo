@@ -44,6 +44,6 @@ An amateurish modern attempt to recreate the now defunct Coding Cookies roguelik
 
 ##### 1.0:
 
-###### I speedrun it on twitch
+###### I speedrun it on twitch.
 
 Everything subject to change as I have a full time job and two cats that keep trying to eat plastic for some reason.
