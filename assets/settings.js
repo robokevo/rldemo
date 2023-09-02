@@ -12,9 +12,54 @@ APP_SETTINGS.viewData = {
       // this.main.getState(viewName) just to read
       this.render();
     },
-    render: function() {
-      const display = this.display;
-      display.drawText(1,1, this.name + " Screen");
+    render: function() {  
+      const main = this.main; console.log(main);
+      const view = main.view;
+      const game = main.getState('play');
+      let verb;
+      if (game) {
+        verb = 'continue';
+      } else {
+        console.log(game);
+        verb = 'start';
+      }
+      let banner = 'M O O N  M I N E R Z Z';
+      let prompt = 'Press [Enter] to ' + verb;
+      // todo: version number var in game settings
+      const version = ' (v 1.0.1)';
+      const display = view.display;
+      dWidth = main.displayWidth;
+      dHeight = main.displayHeight;
+      origin = this.origin;
+      // draw banner
+      //banner += version; console.log(banner);
+      let bannerX, bannerY, promptX, promptY;
+      bannerX = Math.floor(dWidth / 2) - Math.floor(banner.length / 2);
+      bannerY = Math.floor(dHeight / 2) - 2;
+      promptX = Math.floor(dWidth / 2) - Math.floor(prompt.length / 2);
+      promptY = bannerY + 6;
+      let splitBanner = banner.split("  "); console.log(splitBanner);
+      display.drawText(
+        bannerX,
+        bannerY-1,
+        splitBanner[0]
+      );
+      display.drawText(
+        bannerX+3,
+        bannerY,
+        splitBanner[1]
+      );
+      display.drawText(
+        bannerX+13,
+        bannerY+1,
+        version
+      );
+      // draw prompt
+      display.drawText(
+        promptX,
+        promptY,
+        prompt
+      );
     }
   // end of splash
   },
@@ -34,9 +79,44 @@ APP_SETTINGS.viewData = {
       this.render();
     },
     render: function() {
-      const display = this.display;
-      display.drawText(1,1, this.name + " Screen");
-    }
+      
+      const main = this.main; console.log(main);
+      const view = main.view;
+      const game = main.getState('play');
+      let verb;
+      if (game) {
+        verb = 'continue';
+      } else {
+        console.log(game);
+        verb = 'start';
+      }
+      let banner = 'Menu';
+      let prompt = 'Press [Enter] to ' + verb;
+      // todo: version number var in game settings
+      const version = ' (v 1.0.1)';
+      const display = view.display;
+      dWidth = main.displayWidth;
+      dHeight = main.displayHeight;
+      origin = this.origin;
+      // draw banner
+      //banner += version; console.log(banner);
+      let bannerX, bannerY, promptX, promptY;
+      bannerX = Math.floor(dWidth / 2) - Math.floor(banner.length / 2);
+      bannerY = Math.floor(dHeight / 2) - 2;
+      promptX = Math.floor(dWidth / 2) - Math.floor(prompt.length / 2);
+      promptY = bannerY + 6;
+      display.drawText(
+        bannerX,
+        bannerY,
+        banner
+      );
+      // draw prompt
+      display.drawText(
+        promptX,
+        promptY,
+        prompt
+      );
+    },
   // end of menu
   },
   play: {
@@ -151,6 +231,7 @@ APP_SETTINGS.viewData = {
         height:  24,
         render: function() {
           const view = this.view;
+          const main = view.main;
           const display = view.display;
           //const game = view.state;
           //const main = view.main;
