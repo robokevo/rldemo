@@ -20,13 +20,12 @@ APP_SETTINGS.viewData = {
       if (game) {
         verb = 'continue';
       } else {
-        console.log(game);
         verb = 'start';
       }
       let banner = 'M O O N  M I N E R Z Z';
       let prompt = 'Press [Enter] to ' + verb;
       // todo: version number var in game settings
-      const version = ' (v 0.0.1)';
+      const version = ' (v 0.1.0.1)';
       const display = view.display;
       dWidth = main.displayWidth;
       dHeight = main.displayHeight;
