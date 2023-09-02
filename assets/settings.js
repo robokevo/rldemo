@@ -116,6 +116,7 @@ APP_SETTINGS.viewData = {
         promptY,
         prompt
       );
+      console.log(test);
     },
   // end of menu
   },
