@@ -58,6 +58,11 @@ Rendering individual panels:
   - fg2/bg2, accent1/accent2 methods still need to be implemented
   - SHOULD NOT NEED MORE THAN 6 COLORS FOR MAIN UI
   - attenuate contrast within AAA guideline (7? c ratio)
+- "palette" object that can return colors. e.g.:
+ - 'return view.palette('bg1');'
+ - 'return view.palette.lighten('bg1',[amount])'
+ // if canonical colors defined
+ - 'return view.palette('green');
 -auto-gradient panel boarders for depth?
 -panels register heights/widths to allow for 2 rows of auto align
 -panel with a log object
