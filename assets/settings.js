@@ -1,7 +1,20 @@
-
+//test
 APP_SETTINGS.viewData = {
   splash: {
     name: "splash",
+    fgColor: [
+      "#990000",
+      "#CC0000"
+    ],
+    bgColor: [
+      "#330000",
+      "#660000"
+    ],
+    colors: {
+      primaryFG:  "#bdf",
+      primaryBG:  "#002",
+      primaryAccent: "#ff8",
+    },
     inputs: {
       enter:  function(main) {
         main.changeView("menu");
@@ -13,7 +26,7 @@ APP_SETTINGS.viewData = {
       this.render();
     },
     render: function() {  
-      const main = this.main; console.log(main);
+      const main = this.main;
       const view = main.view;
       const game = main.getState('play');
       let verb;
@@ -27,6 +40,11 @@ APP_SETTINGS.viewData = {
       // todo: version number var in game settings
       const version = ' (v 0.1.0.1)';
       const display = view.display;
+      const bgColor = '%b{' + this.bg1 + '}';
+      const fgColor = '%c{' + this.fg1 + '}';
+      const accentColor = '%c{' + this.accent1 + '}';
+      const colors1 = fgColor+bgColor;
+      const colors2 = accentColor+bgColor;
       dWidth = main.displayWidth;
       dHeight = main.displayHeight;
       origin = this.origin;
@@ -40,30 +58,31 @@ APP_SETTINGS.viewData = {
       let splitBanner = banner.split("  "); console.log(splitBanner);
       display.drawText(
         bannerX,
-        bannerY-1,
-        splitBanner[0]
+        bannerY-2,
+        colors2 + splitBanner[0]
       );
       display.drawText(
         bannerX+3,
         bannerY,
-        splitBanner[1]
+        colors2 + splitBanner[1]
       );
       display.drawText(
         bannerX+13,
-        bannerY+1,
-        version
+        bannerY+2,
+        colors1 + version
       );
       // draw prompt
       display.drawText(
         promptX,
         promptY,
-        prompt
+        colors1 + prompt
       );
     }
   // end of splash
   },
   menu: {
     name: "menu",
+    bgColor: '#700000',
     inputs: {
       enter:  function(main) {
         console.log("pressed Enter in Menu");
@@ -74,12 +93,17 @@ APP_SETTINGS.viewData = {
         main.changeView("splash");
       }
     },
+    colors: {
+      primaryFG:  "#bdf",
+      primaryBG:  "#011",
+      primaryAccent: "#ff8",
+    },
     load: function() {
       this.render();
     },
     render: function() {
       
-      const main = this.main; console.log(main);
+      const main = this.main;
       const view = main.view;
       const game = main.getState('play');
       let verb;
@@ -100,9 +124,19 @@ APP_SETTINGS.viewData = {
       //banner += version; console.log(banner);
       let bannerX, bannerY, promptX, promptY;
       bannerX = Math.floor(dWidth / 2) - Math.floor(banner.length / 2);
-      bannerY = Math.floor(dHeight / 2) - 2;
+      bannerY = Math.floor(dHeight / 3);// ;//- 2;
       promptX = Math.floor(dWidth / 2) - Math.floor(prompt.length / 2);
       promptY = bannerY + 6;
+      // colorize
+      banner =
+        '%c{' + this.accent1 + '}' +
+        '%b{' + this.bg1 + '}' +
+        banner;
+      prompt =
+        '%c{' + this.fg1 + '}' +
+        '%b{' + this.bg1 + '}' +
+        prompt;
+      // render
       display.drawText(
         bannerX,
         bannerY,
@@ -114,7 +148,6 @@ APP_SETTINGS.viewData = {
         promptY,
         prompt
       );
-      console.log(test);
     },
   // end of menu
   },
@@ -221,13 +254,13 @@ APP_SETTINGS.viewData = {
         title: "*Moon Minerzz*",
         order:  0,
         borderWidth: 1,
-        corners:  ['*','*','\\','\/'],
+        //corners:  ['*','*','\\','\/'], // made more sense in non-square ratios
         origin: {
           x: 0,
           y: 0
         },
-        width:  26,
-        height:  24,
+        bodyWidth:  26,
+        bodyHeight:  24,
         render: function() {
           const view = this.view;
           const main = view.main;
@@ -270,8 +303,8 @@ APP_SETTINGS.viewData = {
           x: 0,
           y: 17
         },
-        width:  26,
-        height:  9,
+        bodyWidth:  26,
+        bodyHeight:  9,
         render: function() {
           const view = this.view;
           const display = view.display;
@@ -340,8 +373,8 @@ APP_SETTINGS.viewData = {
         },
         inputs: {
         },
-        width:  9,
-        height:  16,
+        bodyWidth:  9,
+        bodyHeight:  16,
         render: function() {
           const view = this.view;
           const display = view.display;
@@ -394,8 +427,8 @@ APP_SETTINGS.viewData = {
         },
         inputs: {
         },
-        width:  9,
-        height:  16,
+        bodyWidth:  9,
+        bodyHeight:  16,
         render: function() {
           const view = this.view;
           const display = view.display;
@@ -430,13 +463,12 @@ APP_SETTINGS.viewData = {
           x: 10,
           y: 1
         },
-        boarderWidth:  0,
-        width:  16,
-        height:  16,
+        //boarderWidth:  0,
+        bodyWidth:  16,
+        bodyHeight:  16,
         inputs: {
         },
         render: function() {
-          //  tile.lastKnown = tile.char;
           const view = this.view;
           const display = view.display;
           const game = view.state;
@@ -486,7 +518,7 @@ APP_SETTINGS.viewData = {
                 fgColor = stage.bgColor[0];
                 bgColor = stage.bgColor[1];
               } else {
-                char = '.';
+                char = ' ';
                 fgColor = stage.bgColor[0];
                 bgColor = stage.bgColor[1];
               }
@@ -557,6 +589,8 @@ APP_SETTINGS.appData = {
 
 APP_SETTINGS.gameData = {
   worldData:  {
+    width:        38,
+    height:       38,
     depth:        6,
     currentDepth: 0,
     stageData:       {
@@ -621,8 +655,6 @@ APP_SETTINGS.gameData = {
         ]
       },
     },
-    width:        48,
-    height:       30,
   // end of worldData
   },
   glyphData: {

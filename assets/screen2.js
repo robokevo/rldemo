@@ -16,8 +16,15 @@ class View {
     this._panels = [];
     this._panelList = null;
     this._activePanel = null;
-    this._bgColor = settings.bgColor || 'black';
+    console.log(settings);
+    // to-do: structure for choosing themes
+    this._colors = settings.colors || {
+        primaryFG: "#eee",
+        primaryBG: "#111",
+        primaryAccent: "#ee7",
+      };
     this._fgColor = settings.fgColor || 'white';
+    this._bgColor = settings.bgColor || 'blue';
     this._fontStyle = settings.fontStyle || 'normal';
     this._title = settings.title || '';
   }
@@ -25,7 +32,13 @@ class View {
   get activePanel() {
     return this._activePanel;
   }
+
+  set activePanel(panel) {
+    this._activePanel = panel;
+  }
   
+  // to be replaced by 
+
   get bgColor() {
     // todo: link to stage background color
     return this._bgColor;
@@ -33,6 +46,18 @@ class View {
 
   get fgColor() {
     return this._fgColor;
+  }
+
+  get fg1() {
+    return this._colors.primaryFG;
+  }
+
+  get bg1() {
+    return this._colors.primaryBG;
+  }
+
+  get accent1() {
+    return this._colors.primaryAccent;
   }
 
   get main() {
@@ -72,11 +97,12 @@ class View {
     const fgColor = this.fgColor ?? 'white';
     const fontStyle = this.fontStyle || 'normal';
     display.setOptions({
-      bg: bgColor,
-      fg: fgColor,
+      bg: this.bg1,
+      fg: this.fg1,
       fontStyle: fontStyle,
     });
     console.log("Entered " + this.name + " screen");
+    //this.render();
   }
   unload() {
     if (this._unload){
@@ -136,8 +162,8 @@ class Panel {
     this._unload = settings.unload || null;
     this._origin = settings.origin || {x: 0, y: 0};
     this._borderWidth = settings.borderWidth || 0;
-    this._coreWidth = settings.width || 0;
-    this._coreHeight = settings.height || 0;
+    this._bodyWidth = settings.bodyWidth || 0;
+    this._bodyHeight = settings.bodyHeight || 0;
     this._title = settings.title || '';
     this._corners = settings.corners || [];
     this._bgColor = settings.bgColor || null;
@@ -182,11 +208,11 @@ class Panel {
   }
 
   get width() {
-    return this._coreWidth + this._borderWidth;
+    return this._bodyWidth + this._borderWidth;
   }
 
   get height() {
-    return this._coreHeight + this._borderWidth;
+    return this._bodyHeight + this._borderWidth;
   }
 
   get title() {

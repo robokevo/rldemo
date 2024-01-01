@@ -121,9 +121,9 @@ class Game {
     return this._noTile;
   }
 
-  get view() {
-    return this._view;
-  }
+  //get view() {
+  //  return this._view;
+  //}
 
   entities(depth) {
     const targetDepth = depth ?? this.currentDepth;

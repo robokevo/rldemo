@@ -371,7 +371,7 @@ class Entity extends Glyph {
 
   setKnown(tile) {
     if (!this._known[tile.z]) {
-      this._known[tile.z] = {};
+      this._known[tile.z] = {}; 
     }
     this._known[tile.z][tile.x+','+tile.y] = tile.char;
   }

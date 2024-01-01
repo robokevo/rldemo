@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 class newApp {
+  // Generic app object for plugging different logic into
   constructor(settings) {
     if (settings) {
       this._settings = settings;
@@ -41,7 +42,7 @@ class newApp {
         //spacing: 1,
         forceSquareRatio: true,
         fontStyle: 'bold',
-        fontSize: '20',
+        fontSize: '18',
         // todo: does this work?
         // todo: test font families, font file import
         textAlign: 'left',
@@ -69,6 +70,7 @@ class newApp {
       this._appTarget = appSettings.appTarget || document.body;
       // input throttle in ms to avoid keyboard spam
       // todo: make sure throttle doesn't interfere with input timing
+      // - will probably have to implement with promises
       //  or see if negative throttle on views can balance
       // (e.g. smaller amount of throttle needed for real time engine)
       this._globalThrottle = appSettings.globalThrottle || 40;

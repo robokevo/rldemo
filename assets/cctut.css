@@ -1,8 +1,59 @@
+@font-face {
+  font-family: "Silkscreen";
+  src: url(Silkscreen-Regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url(OpenSans-Regular.woff2) format('woff2');
+}
+
+/*
+  (slightly modified version of) Josh's Custom CSS Reset
+  https://www.joshwcomeau.com/css/custom-css-reset/
+*/
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
 body {
-  background-color: #111111;
-  color: #999999;
-  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+img, picture, video, svg {
+  display: block;
+  max-width: 100%;
+}
+input, button, textarea, select {
+  font: inherit;
+}
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+#root, #__next {
+  isolation: isolate;
+}
+
+
+body {
+  background-color: #012;
+  color: #CDE;
+  font-family: "Open Sans", Verdana, Arial, Helvetica, sans-serif;
   font-size: .9rem;
+}
+
+h1 {
+  font-family: "Silkscreen", "Open Sans", Verdana, Tahoma, sans-serif;
+  font-size: 3rem;
+  color: #8dc;
+  overflow-wrap: break-word;
+}
+
+h2 {
+  padding-right: 5px;
+  font-size: 1.1rem;
 }
 
 .center {
@@ -10,45 +61,34 @@ body {
   text-align: center;
 }
 
-h1 {
-  font-size: 1.1rem;
-  color: #aabbaa;
-}
+.container {  
+  padding: 10px;
+  margin: auto;
+  text-align: center;
+  width: 500px;
+  }
 
-#info {
-    background-color: #333333;
-    margin: 5px 5px;
-}
-
-h1 {
-    margin: 10px; 
-}
-
-table, td {
-  border: none;
-  width: 100%;
-}
-
-th {
-  margin: 5px;
-  padding: 5px;
-  background-color: #aaaaaa;
-  color:  #223322;
-}
-
-td {
-  margin: 5px;
-  padding: 5px;
-}
-
-#history {
-  height: 2.5rem;
-}
-
-#errata {
-  font-size: .8rem;
+.content{
+  margin-top: 10px;
+  margin-bottom: 15px;
+  color:  #123;
+  background-color: #ba9;
 }
 
 #footer {
-  font-size: .7rem;
+  color: #ff8;
+  margin: auto;
+  text-align: center;
+  font-size: .8rem;
+}
+
+#minifooter {
+  color: #5aa;
+  margin: auto;
+  font-size: .8rem;
+  font-style: italic;
+  position:absolute;
+  bottom:0px;
+  
+  text-align:center;
 }
