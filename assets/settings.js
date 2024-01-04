@@ -38,7 +38,7 @@ APP_SETTINGS.viewData = {
       let banner = 'M O O N  M I N E R Z Z';
       let prompt = 'Press [Enter] to ' + verb;
       // todo: version number var in game settings
-      const version = ' (v 0.1.0.1)';
+      const version = ' (v 0.1.0.3)';
       const display = view.display;
       const bgColor = '%b{' + this.colors('bg1') + '}';
       const fgColor = '%c{' + this.colors('fg1') + '}';
