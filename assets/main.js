@@ -36,13 +36,14 @@ class newApp {
       // to
       this._displayWidth = appSettings.startWidth || 80;
       this._displayHeight = appSettings.startHeight || 20;
+      this._fontSize = appSettings.fontSize || '18';
       this._display = new ROT.Display({
         width: this._displayWidth,
         height: this._displayHeight,
         //spacing: 1,
         forceSquareRatio: true,
         fontStyle: 'bold',
-        fontSize: '18',
+        fontSize: this._fontSize,
         // todo: does this work?
         // todo: test font families, font file import
         textAlign: 'left',

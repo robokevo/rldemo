@@ -19,7 +19,7 @@ class View {
     console.log(settings);
     // to-do: structure for choosing themes
     this._colors = settings.colors || {
-        primaryFG: "#eee",
+        fg1: "#eee",
         primaryBG: "#111",
         primaryAccent: "#ee7",
       };
@@ -88,6 +88,15 @@ class View {
     this.main._store[this.name] = state;
   }
 
+  // returns color under 'name', or sets value under name if present
+  colors(name, value) {
+    if (value!==undefined) {
+      this._colors[name] = value;
+    }
+
+    return this._colors[name];
+  }
+
   load(params) {
     if (this._load) {
       this._load(params);
@@ -97,8 +106,8 @@ class View {
     const fgColor = this.fgColor ?? 'white';
     const fontStyle = this.fontStyle || 'normal';
     display.setOptions({
-      bg: this.bg1,
-      fg: this.fg1,
+      bg: this.colors('bg1'),
+      fg: this.colors('fg1'),
       fontStyle: fontStyle,
     });
     console.log("Entered " + this.name + " screen");
@@ -162,8 +171,8 @@ class Panel {
     this._unload = settings.unload || null;
     this._origin = settings.origin || {x: 0, y: 0};
     this._borderWidth = settings.borderWidth || 0;
-    this._bodyWidth = settings.bodyWidth || 0;
-    this._bodyHeight = settings.bodyHeight || 0;
+    this._bodyWidth = settings.bodyWidth || view.main.displayWidth;
+    this._bodyHeight = settings.bodyHeight || view.main.displayHeight;
     this._title = settings.title || '';
     this._corners = settings.corners || [];
     this._bgColor = settings.bgColor || null;

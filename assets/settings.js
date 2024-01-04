@@ -11,9 +11,9 @@ APP_SETTINGS.viewData = {
       "#660000"
     ],
     colors: {
-      primaryFG:  "#bdf",
-      primaryBG:  "#002",
-      primaryAccent: "#ff8",
+      fg1:  "#bdf",
+      bg1:  "#002",
+      accent1: "#ff8",
     },
     inputs: {
       enter:  function(main) {
@@ -40,9 +40,9 @@ APP_SETTINGS.viewData = {
       // todo: version number var in game settings
       const version = ' (v 0.1.0.1)';
       const display = view.display;
-      const bgColor = '%b{' + this.bg1 + '}';
-      const fgColor = '%c{' + this.fg1 + '}';
-      const accentColor = '%c{' + this.accent1 + '}';
+      const bgColor = '%b{' + this.colors('bg1') + '}';
+      const fgColor = '%c{' + this.colors('fg1') + '}';
+      const accentColor = '%c{' + this.colors('accent1') + '}';
       const colors1 = fgColor+bgColor;
       const colors2 = accentColor+bgColor;
       dWidth = main.displayWidth;
@@ -94,9 +94,9 @@ APP_SETTINGS.viewData = {
       }
     },
     colors: {
-      primaryFG:  "#bdf",
-      primaryBG:  "#011",
-      primaryAccent: "#ff8",
+      fg1:  "#bcf",
+      bg1:  "#013",
+      accent1: "#ff8",
     },
     load: function() {
       this.render();
@@ -129,12 +129,12 @@ APP_SETTINGS.viewData = {
       promptY = bannerY + 6;
       // colorize
       banner =
-        '%c{' + this.accent1 + '}' +
-        '%b{' + this.bg1 + '}' +
+        '%c{' + this.colors('accent1') + '}' +
+        '%b{' + this.colors('bg1') + '}' +
         banner;
       prompt =
-        '%c{' + this.fg1 + '}' +
-        '%b{' + this.bg1 + '}' +
+        '%c{' + this.colors('fg1') + '}' +
+        '%b{' + this.colors('bg1') + '}' +
         prompt;
       // render
       display.drawText(
@@ -154,6 +154,15 @@ APP_SETTINGS.viewData = {
   play: {
     name: "play",
     bgColor: '#700000',
+    colors: {
+      titleFg:  '#2be',
+      titleBg:  '#345',
+      fg1:  "#09c",
+      bg1:  "#123",
+      fg2: '#eee',
+      bg2: '#058',
+      accent1: "#ff8",
+    },
     inputs: {
       enter:  function(main) {
         //idle
@@ -259,8 +268,8 @@ APP_SETTINGS.viewData = {
           x: 0,
           y: 0
         },
-        bodyWidth:  26,
-        bodyHeight:  24,
+        //bodyWidth:  26,
+        //bodyHeight:  24,
         render: function() {
           const view = this.view;
           const main = view.main;
@@ -268,20 +277,20 @@ APP_SETTINGS.viewData = {
           //const game = view.state;
           //const main = view.main;
           // rendering game area
-          const dWidth = this.width;
+          const width = this.width;
           const origin = this.origin;
           const offset = Math.floor(this.title.length/2)
           // assumes even width
 
-          const bgColorStr = '%b{' + this.bgColor + '}';
-          const fgBgColorStr = '%c{' + this.bgColor + '}';
-          const fgColorStr = '%c{' + '#ffbbbb' + '}';
+          const bgColorStr = '%b{' + view.colors('titleBg') + '}';
+          const fgBgColorStr = '%c{' + view.colors('titleBg') + '}';
+          const fgColorStr = '%c{' + view.colors('titleFg') + '}';
           let filler = bgColorStr + fgBgColorStr + '-'.repeat(
-            Math.floor((this.width-2)/2 - this.title.length/2));
+            Math.floor(width/2 - this.title.length/2));
           filler += fgColorStr + bgColorStr + this.title + filler;
           // so many hacks
           // todo: proper title rendering for panels
-          display.drawText(origin.x + 1, origin.y, filler);
+          display.drawText(origin.x, origin.y, filler);
           ////const title = this.corners[0] + bgColorStr + filler + fgColorStr + this.corners[1];
           ////const filler = fgColorStr + bgColorStr + '_'.repeat(this.width-1);
           //display.drawText(origin.x, origin.y, filler);
@@ -326,10 +335,10 @@ APP_SETTINGS.viewData = {
 
           const messages = player.messages;
 
-          let bgColorStr = '%b{' + '#330000' + '}';
-          let fgBgColorStr = '%c{' + '#220000' + '}';
-          let fgColorStr = '%c{' + '#ffaaaa' + '}';
-          msgBg = '%b{' + '#220000' + '}';
+          let bgColorStr = '%b{' + view.colors('bg1') + '}';
+          let fgBgColorStr = '%c{' + view.colors('bg1') + '}';
+          let fgColorStr = '%c{' + view.colors('fg1') + '}';
+          msgBg = '%b{' + view.colors('bg1') + '}';
 
           let row = origin.y + 1;
           let overflow = 0;
@@ -351,9 +360,9 @@ APP_SETTINGS.viewData = {
             }
           }
           // rendering heading
-          bgColorStr = '%b{' + '#992222' + '}';
-          fgBgColorStr = '%c{' + '#992222' + '}';
-          fgColorStr = '%c{' + '#ff9999' + '}';
+          bgColorStr = '%b{' + view.colors('titleBg') + '}';
+          fgBgColorStr = '%c{' + view.colors('titleBg') + '}';
+          fgColorStr = '%c{' + view.colors('titleFg') + '}';
           filler = bgColorStr + fgBgColorStr + '-'.repeat(
             Math.floor((this.width)/2 - this.title.length/2));
           filler += fgColorStr + bgColorStr + this.title + filler;
@@ -373,7 +382,7 @@ APP_SETTINGS.viewData = {
         },
         inputs: {
         },
-        bodyWidth:  9,
+        bodyWidth:  10,
         bodyHeight:  16,
         render: function() {
           const view = this.view;
@@ -386,33 +395,34 @@ APP_SETTINGS.viewData = {
           // assumes even width
 
           // rendering heading
-          let bg = '%b{' + '#992222' + '}';
-          let fgBg = '%c{' + '#992222' + '}';
-          let fg = '%c{' + '#ffbbbb' + '}';
-          let filler = bg + fgBg + '.'.repeat(this.width);
-          const name = fg + bg + player.name;
+          let bg = '%b{' + view.colors('bg1') + '}';
+          let fgBg = '%c{' + view.colors('bg1') + '}';
+          let fg = '%c{' + view.colors('fg1') + '}';
+          let accent = '%c{' + view.colors('accent1') + '}';
+          let filler = bg + fgBg + '.'.repeat(width);
+          const name = accent + bg + player.name;
           // so many hacks
           // todo: proper title rendering for panels
           display.drawText(origin.x, origin.y, filler, this.width);
           display.drawText(origin.x + 2, origin.y, name);
-          display.draw(origin.x, origin.y, player.char, '#992222', '#992222');
+          display.draw(origin.x, origin.y, player.char, fg, view.colors('bg1'));
           display.drawText(origin.x, origin.y + 1,
-            fg + '%b{' + view.bgColor + '}' + `Hungry`
+            fg + bg + `Hungry`
           );
           display.drawText(origin.x, origin.y + 3,
-            fg + '%b{' + view.bgColor + '}' + `HP:${player.hp}\/${player.maxHp}`
+            fg + bg + `HP:${player.hp}\/${player.maxHp}`
           );
           display.drawText(origin.x, origin.y + 4,
-            fg + '%b{' + view.bgColor + '}' + `Energy:100`
+            fg + bg + `Energy:100`
           );
           display.drawText(origin.x, origin.y + 5,
-            fg + '%b{' + view.bgColor + '}' + `Attack:${player.atkPower}`
+            fg + bg + `Attack:${player.atkPower}`
           );
           display.drawText(origin.x, origin.y + 6,
-            fg + '%b{' + view.bgColor + '}' + `Defense:${player.defense}`
+            fg + bg + `Defense:${player.defense}`
           );
           display.drawText(origin.x, origin.y + 7,
-            fg + '%b{' + view.bgColor + '}' + `Eqp.:`
+            fg + bg + `Eqp.:`
           );
 
         }
@@ -427,7 +437,7 @@ APP_SETTINGS.viewData = {
         },
         inputs: {
         },
-        bodyWidth:  9,
+        bodyWidth:  10,
         bodyHeight:  16,
         render: function() {
           const view = this.view;
@@ -440,18 +450,20 @@ APP_SETTINGS.viewData = {
           // assumes even width
 
           // rendering heading
-          let bg = '%b{' + '#992222' + '}';
-          let fgBg = '%c{' + '#992222' + '}';
-          let fg = '%c{' + '#ff9999' + '}';
-          let filler = bg + fgBg + '-'.repeat(this.width);
-          let name = fg + bg + 'Info';
+          let bg = '%b{' + view.colors('bg1') + '}';
+          let titleBg = '%b{' + view.colors('titleBg') + '}';
+          let titleFgBg = '%c{' + view.colors('titleBg') + '}';
+          let fg = '%c{' + view.colors('fg1') + '}';
+          let titleFg = '%c{' + view.colors('titleFg') + '}';
+          let filler = titleFgBg + titleBg + '-'.repeat(this.width);
+          let name = titleFg + titleBg + 'Info';
           // so many hacks
           // todo: proper title rendering for panels
           display.drawText(origin.x, origin.y, filler, this.width);
           display.drawText(origin.x + Math.floor((this.width)/2-2), origin.y, name);
           //display.draw(origin.x, origin.y, player.char, null, bg);
           display.drawText(origin.x, origin.y + 2,
-            fg + '%b{' + view.bgColor + '}' + 'No Info'
+            fg + bg + 'No Info'
           );
         }
       // end of sidebar2
@@ -556,9 +568,10 @@ APP_SETTINGS.viewData = {
             //}
           }
           // render over left boarder to hide overhang of large emoji
+          // only needed on left side for some reason?
+          // to-do: move to panel to do?
           let filler = '-';
-          fg = this.fgColor;
-          bg = this.bgColor;
+          bg = view.colors('bg1');
           for (let i = 0; i < this.height; i++) {
             display.draw(
               origin.x-1,
@@ -583,7 +596,7 @@ APP_SETTINGS.viewData = {
 
 APP_SETTINGS.appData = {
   startWidth: 26,
-  startHeight: 24,
+  startHeight: 26,
 // end of appData
 };
 
@@ -713,7 +726,7 @@ APP_SETTINGS.gameData = {
     speed:  100,
     basePower: 3,
     maxHp:  99,
-    sightRadius:  5,
+    sightRadius:  9,
   },
 
   entityData: {
