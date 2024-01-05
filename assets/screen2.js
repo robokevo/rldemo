@@ -145,12 +145,9 @@ class View {
       this._panels.push(panel);
     }
     this._panels.sort(function(a, b) {
-        if (a.order < b.order) {
-          return -1;
-        } else {
-          return 1;
-        }
+      return a - b;
     });
+    console.log(this._panels);
     
   }
   

@@ -159,6 +159,8 @@ APP_SETTINGS.viewData = {
       titleBg:  '#345',
       fg1:  "#09c",
       bg1:  "#123",
+      bg1a:  "#112",
+      bg1b: "#111",
       fg2: '#eee',
       bg2: '#058',
       accent1: "#ff8",
@@ -302,175 +304,9 @@ APP_SETTINGS.viewData = {
           //  origin.y, this.title, '#ffbbbb', this.bgColor);
         },
       },
-      log: {
-        name: "log",
-        title: "Messages",
-        order:  1,
-        borderWidth: 1,
-        corners:  ['*','*','\\','\/'],
-        origin: {
-          x: 0,
-          y: 17
-        },
-        bodyWidth:  26,
-        bodyHeight:  9,
-        render: function() {
-          const view = this.view;
-          const display = view.display;
-          const game = view.state;
-          const player = game.player;
-          //const game = view.state;
-          //const main = view.main;
-          // rendering game area
-          const dWidth = this.width;
-          const origin = this.origin;
-          const offset = Math.floor(this.title.length/2)
-          // assumes even width
-
-
-        
-          // Rendering messages from the line under the heading
-          // messages render with the most recent message at the top,
-          // pushing subsequent messages down the screen
-
-          const messages = player.messages;
-
-          let bgColorStr = '%b{' + view.colors('bg1') + '}';
-          let fgBgColorStr = '%c{' + view.colors('bg1') + '}';
-          let fgColorStr = '%c{' + view.colors('fg1') + '}';
-          msgBg = '%b{' + view.colors('bg1') + '}';
-
-          let row = origin.y + 1;
-          let overflow = 0;
-          let message = fgColorStr + msgBg;
-          
-          let filler = bgColorStr + fgBgColorStr + '. '.repeat(Math.ceil(this.width/2));
-
-          for (let f = 1; f < this.height; f++) {
-            display.drawText(origin.x, origin.y + f, filler, this.width);
-          }
-
-          if (messages.length > 0) {
-            for (let i = 0; i < this.height; i++) {
-              if (messages[messages.length-(1+i)]) {
-                display.drawText(origin.x, row, filler, this.width);
-                overflow = display.drawText(origin.x, row, message + messages[messages.length-(1+i)]);
-                row += overflow;
-              } 
-            }
-          }
-          // rendering heading
-          bgColorStr = '%b{' + view.colors('titleBg') + '}';
-          fgBgColorStr = '%c{' + view.colors('titleBg') + '}';
-          fgColorStr = '%c{' + view.colors('titleFg') + '}';
-          filler = bgColorStr + fgBgColorStr + '-'.repeat(
-            Math.floor((this.width)/2 - this.title.length/2));
-          filler += fgColorStr + bgColorStr + this.title + filler;
-          // so many hacks
-          // todo: proper title rendering for panels
-          display.drawText(origin.x, origin.y, filler, this.width+2);
-        }
-        
-      // end of messages
-      },
-      sidebar1: {
-        name: "Player",
-        order:  2,
-        origin: {
-          x: 0,
-          y: 1,
-        },
-        inputs: {
-        },
-        bodyWidth:  10,
-        bodyHeight:  16,
-        render: function() {
-          const view = this.view;
-          const display = view.display;
-          const game = view.state;
-          const player = game.player;
-          const origin = this.origin;
-          const width = this.width;
-          const height = this.height;
-          // assumes even width
-
-          // rendering heading
-          let bg = '%b{' + view.colors('bg1') + '}';
-          let fgBg = '%c{' + view.colors('bg1') + '}';
-          let fg = '%c{' + view.colors('fg1') + '}';
-          let accent = '%c{' + view.colors('accent1') + '}';
-          let filler = bg + fgBg + '.'.repeat(width);
-          const name = accent + bg + player.name;
-          // so many hacks
-          // todo: proper title rendering for panels
-          display.drawText(origin.x, origin.y, filler, this.width);
-          display.drawText(origin.x + 2, origin.y, name);
-          display.draw(origin.x, origin.y, player.char, fg, view.colors('bg1'));
-          display.drawText(origin.x, origin.y + 1,
-            fg + bg + `Hungry`
-          );
-          display.drawText(origin.x, origin.y + 3,
-            fg + bg + `HP:${player.hp}\/${player.maxHp}`
-          );
-          display.drawText(origin.x, origin.y + 4,
-            fg + bg + `Energy:100`
-          );
-          display.drawText(origin.x, origin.y + 5,
-            fg + bg + `Attack:${player.atkPower}`
-          );
-          display.drawText(origin.x, origin.y + 6,
-            fg + bg + `Defense:${player.defense}`
-          );
-          display.drawText(origin.x, origin.y + 7,
-            fg + bg + `Eqp.:`
-          );
-
-        }
-      // end of sidebar1
-      },
-      sidebar2: {
-        name: "Info",
-        order:  3,
-        origin: {
-          x: 0,
-          y: 10,
-        },
-        inputs: {
-        },
-        bodyWidth:  10,
-        bodyHeight:  16,
-        render: function() {
-          const view = this.view;
-          const display = view.display;
-          const game = view.state;
-          const player = game.player;
-          const origin = this.origin;
-          const width = this.width;
-          const height = this.height;
-          // assumes even width
-
-          // rendering heading
-          let bg = '%b{' + view.colors('bg1') + '}';
-          let titleBg = '%b{' + view.colors('titleBg') + '}';
-          let titleFgBg = '%c{' + view.colors('titleBg') + '}';
-          let fg = '%c{' + view.colors('fg1') + '}';
-          let titleFg = '%c{' + view.colors('titleFg') + '}';
-          let filler = titleFgBg + titleBg + '-'.repeat(this.width);
-          let name = titleFg + titleBg + 'Info';
-          // so many hacks
-          // todo: proper title rendering for panels
-          display.drawText(origin.x, origin.y, filler, this.width);
-          display.drawText(origin.x + Math.floor((this.width)/2-2), origin.y, name);
-          //display.draw(origin.x, origin.y, player.char, null, bg);
-          display.drawText(origin.x, origin.y + 2,
-            fg + bg + 'No Info'
-          );
-        }
-      // end of sidebar2
-      },
       stage: {
         name: "stage",
-        order:  0,
+        order:  1,
         origin: {
           x: 10,
           y: 1
@@ -567,21 +403,212 @@ APP_SETTINGS.viewData = {
               }
             //}
           }
-          // render over left boarder to hide overhang of large emoji
-          // only needed on left side for some reason?
-          // to-do: move to panel to do?
-          let filler = '-';
-          bg = view.colors('bg1');
-          for (let i = 0; i < this.height; i++) {
+        },
+      },
+      sidebar1: {
+        name: "Player",
+        order:  2,
+        origin: {
+          x: 0,
+          y: 1,
+        },
+        inputs: {
+        },
+        bodyWidth:  10,
+        bodyHeight:  9,
+        render: function() {
+          const view = this.view;
+          const display = view.display;
+          const game = view.state;
+          const player = game.player;
+          const origin = this.origin;
+          const width = this.width;
+          const height = this.height;
+          // assumes even width
+
+          // rendering heading
+          let bgHex = view.colors('bg1');
+          let bg = '%b{' + bgHex + '}';
+          let fgBg = '%c{' + view.colors('bg1') + '}';
+          let fg = '%c{' + view.colors('fg1') + '}';
+          let accent = '%c{' + view.colors('accent1') + '}';
+          let filler = bg + fgBg + '.'.repeat(width-1);
+          const name = accent + bg + player.name;
+          // so many hacks
+          // todo: proper title rendering for panels
+          // drawing right border on redraw to overwrite emoji overlap
+          for (let i = 0; i < height; i++) {
             display.draw(
-              origin.x-1,
+              origin.x + width-1,
               origin.y + i,
-              filler,
-              bg,
-              bg
+              '.',
+              bgHex,
+              bgHex
+            );
+          }
+          display.drawText(origin.x, origin.y, filler, this.width);
+          display.drawText(origin.x + 2, origin.y, name);
+          display.draw(origin.x, origin.y, player.char, fg, view.colors('bg1'));
+          display.drawText(origin.x, origin.y + 1,
+            fg + bg + `Hungry`
+          );
+          display.drawText(origin.x, origin.y + 3,
+            fg + bg + `HP:${player.hp}\/${player.maxHp}`
+          );
+          display.drawText(origin.x, origin.y + 4,
+            fg + bg + `Power:100`
+          );
+          display.drawText(origin.x, origin.y + 5,
+            fg + bg + `Attack:${player.atkPower}`
+          );
+          display.drawText(origin.x, origin.y + 6,
+            fg + bg + `Defense:${player.defense}`
+          );
+          display.drawText(origin.x, origin.y + 7,
+            fg + bg + `Eqp.:`
+          );
+          
+        }
+      // end of sidebar1
+      },
+      sidebar2: {
+        name: "Info",
+        order:  3,
+        origin: {
+          x: 0,
+          y: 10,
+        },
+        inputs: {
+        },
+        bodyWidth:  10,
+        bodyHeight:  7,
+        render: function() {
+          const view = this.view;
+          const display = view.display;
+          const game = view.state;
+          const player = game.player;
+          const origin = this.origin;
+          const width = this.width;
+          const height = this.height;
+          // assumes even width
+
+          // rendering heading
+          let bgHex = view.colors('bg1a');
+          let bg = '%b{' + bgHex + '}';
+          let titleBg = '%b{' + view.colors('titleBg') + '}';
+          let titleFgBg = '%c{' + view.colors('titleBg') + '}';
+          let fg = '%c{' + view.colors('fg1') + '}';
+          let titleFg = '%c{' + view.colors('titleFg') + '}';
+          let filler = '-'.repeat(this.width);
+          titleFill = 
+            '%b{' + view.colors('titleBg') + '}' +
+            '%c{' + view.colors('titleBg') + '}';
+          panelFill =
+          '%b{' + view.colors('bg1a') + '}' +
+          '%c{' + view.colors('bg1a') + '}';
+          let name = titleFg + titleBg + 'Info';
+          // so many hacks
+          // todo: proper title rendering for panels
+          // drawing right border on redraw to overwrite emoji overlap
+          // NOTE: draw, not drawText, seems to overwrite the pixel data
+          let thisX = origin.x + width - 1;
+          let thisY;
+          let panelFiller = panelFill + filler;
+          for (let i = 0; i < height; i++) {
+            thisY = origin.y + i;
+            display.draw(
+              thisX,
+              thisY,
+              '.',
+              bgHex,
+              bgHex
+            );
+            display.drawText(
+              origin.x,
+              thisY,
+              panelFiller
             )
           }
+          // todo: proper title rendering for panels
+          display.drawText(origin.x, origin.y, titleFill + filler, this.width);
+          display.drawText(origin.x + Math.floor((this.width)/2-2), origin.y, name);
+          //display.draw(origin.x, origin.y, player.char, null, bg);
+          display.drawText(origin.x, origin.y + 2,
+            fg + bg + 'No Info'
+          );
+        }
+      // end of sidebar2
+      },
+      log: {
+        name: "log",
+        title: "Messages",
+        order:  4,
+        borderWidth: 1,
+        corners:  ['*','*','\\','\/'],
+        origin: {
+          x: 0,
+          y: 17
         },
+        bodyWidth:  26,
+        bodyHeight:  9,
+        render: function() {
+          const view = this.view;
+          const display = view.display;
+          const game = view.state;
+          const player = game.player;
+          //const game = view.state;
+          //const main = view.main;
+          // rendering game area
+          const dWidth = this.width;
+          const origin = this.origin;
+          const offset = Math.floor(this.title.length/2)
+          // assumes even width
+
+
+        
+          // Rendering messages from the line under the heading
+          // messages render with the most recent message at the top,
+          // pushing subsequent messages down the screen
+
+          const messages = player.messages;
+
+          let bgColorStr = '%b{' + view.colors('bg1b') + '}';
+          let fgBgColorStr = '%c{' + view.colors('bg1b') + '}';
+          let fgColorStr = '%c{' + view.colors('fg1') + '}';
+          msgBg = '%b{' + view.colors('bg1a') + '}';
+
+          let row = origin.y + 1;
+          let overflow = 0;
+          let message = fgColorStr + msgBg;
+          
+          let filler = bgColorStr + fgBgColorStr + '. '.repeat(Math.ceil(this.width/2));
+
+          for (let f = 1; f < this.height; f++) {
+            display.drawText(origin.x, origin.y + f, filler, this.width);
+          }
+
+          if (messages.length > 0) {
+            for (let i = 0; i < this.height; i++) {
+              if (messages[messages.length-(1+i)]) {
+                display.drawText(origin.x, row, filler, this.width);
+                overflow = display.drawText(origin.x, row, message + messages[messages.length-(1+i)]);
+                row += overflow;
+              } 
+            }
+          }
+          // rendering heading
+          bgColorStr = '%b{' + view.colors('titleBg') + '}';
+          fgBgColorStr = '%c{' + view.colors('titleBg') + '}';
+          fgColorStr = '%c{' + view.colors('titleFg') + '}';
+          filler = bgColorStr + fgBgColorStr + '-'.repeat(
+            Math.floor((this.width)/2 - this.title.length/2));
+          filler += fgColorStr + bgColorStr + this.title + filler;
+          // so many hacks
+          // todo: proper title rendering for panels
+          display.drawText(origin.x, origin.y, filler, this.width+2);
+        }
+        
+      // end of messages
       },
     // end of panels
     },
