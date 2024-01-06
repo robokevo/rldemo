@@ -289,10 +289,12 @@ class Entity extends Glyph {
     if (this.hp <= 0) {
       const game = this.game;
       this.expire();
-      if (!this.player) {
-        game.removeEntity(this);
-        game.engine.unlock();
-      }
+      //if (!this.player) {
+      //  game.removeEntity(this);
+      //  game.engine.unlock();
+      //}
+      game.removeEntity(this);
+      game.engine.unlock();
     }
   }
 
@@ -317,7 +319,9 @@ class Entity extends Glyph {
     //  means of expiry ('You were impaled')
     let message;
     if (this.player) {
-      message = "You have expired! Press [F5] to try again";
+      message = 
+        "%c{" + "#ff8" + "}" + 
+        "You have expired! Press [F5] to try again";
     } else {
       message = this.name + " has expired!";
     }
@@ -405,6 +409,10 @@ class Entity extends Glyph {
   }
 
   tryPos(coord) {
+    if (this.hp < 0) {
+      this.expire();
+      return false;
+    }
     const game = this.game;
     //coord.x = coord.x + this.x;
     //coord.y = coord.y + this.y;
@@ -454,8 +462,10 @@ class Player extends Entity {
   }
 
   act() {
-    if (this.hp > 0) {
-      this.game.engine.lock();
-    }
+    //if (this.hp > 0) {
+    //  this.game.engine.lock();
+    //}
+    this.game.engine.lock();
+    return;
   }
 }
