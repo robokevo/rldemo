@@ -46,14 +46,14 @@ body {
 
 h1 {
   font-family: "Silkscreen", "Open Sans", Verdana, Tahoma, sans-serif;
-  font-size: 3rem;
+  font-size: 2rem;
   color: #8dc;
   overflow-wrap: break-word;
 }
 
 h2 {
   padding-right: 5px;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .center {
@@ -70,9 +70,12 @@ h2 {
 
 .content{
   margin-top: 10px;
-  margin-bottom: 15px;
-  color:  #123;
-  background-color: #ba9;
+  margin-bottom: 5px;
+  color:  #dfd;
+}
+
+#app {
+  margin: 5px;
 }
 
 #footer {

@@ -170,8 +170,10 @@ APP_SETTINGS.viewData = {
         //idle
         const game = main.view.state;
         main.view.render();
+        if (game.player.hp >= 0) {
+          game.engine.unlock();
+        }
         console.log('pass');
-        game.engine.unlock();
       },
       escape:  function(main) {
         console.log("pressed Escape in Play");        
@@ -434,6 +436,7 @@ APP_SETTINGS.viewData = {
           let accent = '%c{' + view.colors('accent1') + '}';
           let filler = bg + fgBg + '.'.repeat(width-1);
           const name = accent + bg + player.name;
+          const hp = (player.hp > 0) ? player.hp : 0;
           // so many hacks
           // todo: proper title rendering for panels
           // drawing right border on redraw to overwrite emoji overlap
@@ -452,21 +455,45 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x, origin.y + 1,
             fg + bg + `Hungry`
           );
-          display.drawText(origin.x, origin.y + 3,
-            fg + bg + `HP:${player.hp}\/${player.maxHp}`
+          // HP status line
+          display.draw(
+            origin.x,
+            origin.y + 3,
+            '\u{2764}\u{FE0F}',
+            null,
+            bgHex
           );
-          display.drawText(origin.x, origin.y + 4,
-            fg + bg + `Power:100`
+          // Power status lline
+          display.draw(
+            origin.x,
+            origin.y + 4,
+            '\u{26A1}',
+            null,
+            bgHex
           );
-          display.drawText(origin.x, origin.y + 5,
-            fg + bg + `Attack:${player.atkPower}`
+
+          display.draw(
+            origin.x,
+            origin.y + 5,
+            '\u{1F4AA}',
+            null,
+            bgHex
           );
-          display.drawText(origin.x, origin.y + 6,
-            fg + bg + `Defense:${player.defense}`
-          );
-          display.drawText(origin.x, origin.y + 7,
-            fg + bg + `Eqp.:`
-          );
+          //display.drawText(origin.x, origin.y + 3,
+          //  fg + bg + `HP:${hp}\/${player.maxHp}`
+          //);
+          //display.drawText(origin.x, origin.y + 4,
+          //  fg + bg + `Power:100`
+          //);
+          //display.drawText(origin.x, origin.y + 5,
+          //  fg + bg + `Attack:${player.atkPower}`
+          //);
+          //display.drawText(origin.x, origin.y + 6,
+          //  fg + bg + `Defense:${player.defense}`
+          //);
+          //display.drawText(origin.x, origin.y + 7,
+          //  fg + bg + `Eqp.:`
+          //);
           
         }
       // end of sidebar1
@@ -624,6 +651,9 @@ APP_SETTINGS.viewData = {
 APP_SETTINGS.appData = {
   startWidth: 26,
   startHeight: 26,
+  fontSize: 13,
+  fontFamily: 'Silkscreen',
+  spacing: 1,
 // end of appData
 };
 

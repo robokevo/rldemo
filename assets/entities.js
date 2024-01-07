@@ -263,17 +263,18 @@ class Entity extends Glyph {
           )
         );
       if (this.player) {
+        // to do: colorize damage
         if (damage < 1) {
-          verb = ' didn\'t scratch the ' + object;
+          verb = ' missed ' + object;
         } else {
-          verb = ' hit the ' + object + ' for ' + damage + ' damage!';
+          verb = ' hit ' + object + ' (' + damage + ' dmg)!';
         }
         message = subject + verb;
       } else {
         if (damage < 1) {
-          verb = ' didn\'t scratch ' + object;
+          verb = ' missed ' + object;
         } else {
-          verb = ' hits ' + object + ' for ' + damage + ' damage!';
+          verb = ' hits ' + object + ' (' + damage + ' dmg)!';
         }
         message = subject + verb;
       }
