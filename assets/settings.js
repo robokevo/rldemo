@@ -38,7 +38,7 @@ APP_SETTINGS.viewData = {
       let banner = 'M O O N  M I N E R Z Z';
       let prompt = 'Press [Enter] to ' + verb;
       // todo: version number var in game settings
-      const version = ' (v 0.1.0.3)';
+      const version = ' (v 0.1.0.3a)';
       const display = view.display;
       const bgColor = '%b{' + this.colors('bg1') + '}';
       const fgColor = '%c{' + this.colors('fg1') + '}';
@@ -67,7 +67,7 @@ APP_SETTINGS.viewData = {
         colors2 + splitBanner[1]
       );
       display.drawText(
-        bannerX+13,
+        bannerX+11,
         bannerY+2,
         colors1 + version
       );
@@ -99,7 +99,7 @@ APP_SETTINGS.viewData = {
       accent1: "#ff8",
     },
     load: function() {
-      this.render();
+      this.render(true);
     },
     render: function() {
       
@@ -431,12 +431,13 @@ APP_SETTINGS.viewData = {
           // rendering heading
           let bgHex = view.colors('bg1');
           let bg = '%b{' + bgHex + '}';
-          let fgBg = '%c{' + view.colors('bg1') + '}';
-          let fg = '%c{' + view.colors('fg1') + '}';
+          let fgHex = view.colors('fg1');
+          let fgBg = '%c{' + bgHex + '}';
+          let fg = '%c{' + fgHex + '}';
           let accent = '%c{' + view.colors('accent1') + '}';
           let filler = bg + fgBg + '.'.repeat(width-1);
           const name = accent + bg + player.name;
-          const hp = (player.hp > 0) ? player.hp : 0;
+          let hp = (player.hp > 0) ? player.hp : 0;
           // so many hacks
           // todo: proper title rendering for panels
           // drawing right border on redraw to overwrite emoji overlap
@@ -455,7 +456,9 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x, origin.y + 1,
             fg + bg + `Hungry`
           );
+
           // HP status line
+          // Todo: break off main window paint from refreshing hp line
           display.draw(
             origin.x,
             origin.y + 3,
@@ -463,6 +466,20 @@ APP_SETTINGS.viewData = {
             null,
             bgHex
           );
+
+          if (hp < 10) {
+            hp = "0" + hp + "/" + player.maxHp.toString();
+          } else {
+            hp = hp.toString() + "/" + player.maxHp.toString();
+          }
+
+
+          display.drawText(
+            origin.x + 2,
+            origin.y + 3,
+            hp,
+          );
+
           // Power status lline
           display.draw(
             origin.x,
@@ -476,6 +493,30 @@ APP_SETTINGS.viewData = {
             origin.x,
             origin.y + 5,
             '\u{1F4AA}',
+            null,
+            bgHex
+          );
+
+          display.draw(
+            origin.x,
+            origin.y + 6,
+            '\u{1F6E1}\u{FE0F}',
+            null,
+            bgHex
+          );
+          
+          display.draw(
+            origin.x,
+            origin.y + 7,
+            '\u{1F9F0}',
+            null,
+            bgHex
+          );
+
+          display.draw(
+            origin.x,
+            origin.y + 8,
+            '\u{1F392}',
             null,
             bgHex
           );
@@ -651,7 +692,7 @@ APP_SETTINGS.viewData = {
 APP_SETTINGS.appData = {
   startWidth: 26,
   startHeight: 26,
-  fontSize: 13,
+  fontSize: 18,
   fontFamily: 'Silkscreen',
   spacing: 1,
 // end of appData

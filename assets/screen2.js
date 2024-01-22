@@ -6,6 +6,9 @@ class View {
     if (settings.load) {
       this._load = settings.load;
     }
+    if (settings.unload) {
+      this._unload = settings.unload;
+    }
     if (settings.render) {
       this._render = settings.render;
     }
@@ -115,7 +118,7 @@ class View {
   }
   unload() {
     if (this._unload){
-      this._load(params);
+      this._unload(params);
     };
     console.log("Exited " + this.name + " screen");
   }
