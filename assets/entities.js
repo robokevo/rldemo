@@ -1,6 +1,6 @@
 class Entity extends Glyph {
   constructor(settings, subsettings) {
-    super(settings);
+    super(subsettings);
     this._game = settings.game;
     this._player = false;
     this._actor = subsettings.actor || true;
@@ -20,6 +20,7 @@ class Entity extends Glyph {
     this._spreadRange = subsettings.spreadRange || 0;
     this._offspring = subsettings.offspring || 0;
     this._messages = subsettings.messages || [];
+    // todo: hearing as an event with a range
     this._hearing = subsettings.hearing || true;
     this._sightRadius = subsettings.sightRadius || 4;
     this._known = {};
@@ -49,6 +50,8 @@ class Entity extends Glyph {
   get baseDefense() {
     return this._baseDefense;
   }
+
+
 
   get defense() {
     // returns defense value including base defense plus
@@ -238,16 +241,21 @@ class Entity extends Glyph {
   
 
   attack(target) {
+    console.log(target);
     // todo: miss chance based on speed
     const game = this.game;
     let hit = false;
     let message, damage, subject, object, verb;
     if (target.player) {
-      subject = this.name;
-      object = 'you';
+      subject = '%c{' + this.fgColor + '}'
+      + this.name + '%c{}';
+      object = '%c{' + target.fgColor + '}'
+      + 'you%c{}';;
     } else {
-      subject = 'You';
-      object = target.name;
+      subject = '%c{' + this.fgColor + '}'
+      + 'You%c{}';
+      object = '%c{' + target.fgColor + '}'
+        + target.name + '%c{}';
     }
     if (game.getRandom() > 0.2) {
       hit = true;
@@ -321,10 +329,10 @@ class Entity extends Glyph {
     let message;
     if (this.player) {
       message = 
-        "%c{" + "#ff8" + "}" + 
+        "%c{" + this.fgColor + "}" + 
         "You have expired! Press [F5] to try again";
     } else {
-      message = this.name + " has expired!";
+      message = "%c{#999}" + this.name + " has expired!%c{}";
     }
     this.announce(message, 5);
   }

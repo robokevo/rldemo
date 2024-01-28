@@ -438,6 +438,7 @@ APP_SETTINGS.viewData = {
           let filler = bg + fgBg + '.'.repeat(width-1);
           const name = accent + bg + player.name;
           let hp = (player.hp > 0) ? player.hp : 0;
+          let power = player.power;
           // so many hacks
           // todo: proper title rendering for panels
           // drawing right border on redraw to overwrite emoji overlap
@@ -467,17 +468,20 @@ APP_SETTINGS.viewData = {
             bgHex
           );
 
-          if (hp < 10) {
-            hp = "0" + hp + "/" + player.maxHp.toString();
-          } else {
-            hp = hp.toString() + "/" + player.maxHp.toString();
-          }
+          //if (hp < 10) {
+          //  hp = "0" + hp + "/" + player.maxHp.toString();
+          //} else {
+          //  hp = hp.toString() + "/" + player.maxHp.toString();
+          //}
+          hp = hp.toString() + "/" + player.maxHp.toString();
+          
 
+          let colors = fg + bg;
 
           display.drawText(
             origin.x + 2,
             origin.y + 3,
-            hp,
+            colors + hp,
           );
 
           // Power status lline
@@ -489,6 +493,13 @@ APP_SETTINGS.viewData = {
             bgHex
           );
 
+          display.drawText(
+            origin.x + 2,
+            origin.y + 4,
+            colors + '0'
+          );
+
+          // Strength
           display.draw(
             origin.x,
             origin.y + 5,
@@ -497,6 +508,13 @@ APP_SETTINGS.viewData = {
             bgHex
           );
 
+          display.drawText(
+            origin.x + 2,
+            origin.y + 5,
+            colors + '0'
+          );
+
+          // Shield
           display.draw(
             origin.x,
             origin.y + 6,
@@ -505,6 +523,13 @@ APP_SETTINGS.viewData = {
             bgHex
           );
           
+          display.drawText(
+            origin.x + 2,
+            origin.y + 6,
+            colors + '0'
+          );
+
+          // Toolbox
           display.draw(
             origin.x,
             origin.y + 7,
@@ -513,13 +538,26 @@ APP_SETTINGS.viewData = {
             bgHex
           );
 
-          display.draw(
-            origin.x,
-            origin.y + 8,
-            '\u{1F392}',
-            null,
-            bgHex
+          display.drawText(
+            origin.x + 2,
+            origin.y + 7,
+            colors + 'None'
           );
+
+          //// Backpack
+          //display.draw(
+          //  origin.x,
+          //  origin.y + 8,
+          //  '\u{1F392}',
+          //  null,
+          //  bgHex
+          //);
+//
+          //display.drawText(
+          //  origin.x + 2,
+          //  origin.y + 8,
+          //  colors + 'None'
+          //);
           //display.drawText(origin.x, origin.y + 3,
           //  fg + bg + `HP:${hp}\/${player.maxHp}`
           //);
@@ -692,7 +730,7 @@ APP_SETTINGS.viewData = {
 APP_SETTINGS.appData = {
   startWidth: 26,
   startHeight: 26,
-  fontSize: 18,
+  fontSize: 14,
   fontFamily: 'Silkscreen',
   spacing: 1,
 // end of appData
@@ -820,6 +858,7 @@ APP_SETTINGS.gameData = {
   playerData: {
     name: 'Astraux',
     char: '\u{1F468}\u{1f3fd}\u{200D}\u{1f680}',
+    fgColor:  '#ff8',
     mobile: true,
     speed:  100,
     basePower: 3,
@@ -832,6 +871,7 @@ APP_SETTINGS.gameData = {
       mushroom: {
         name: 'mushroom',
         char: '\u{1F344}',
+        fgColor: '#dda',
         mobile: false,
         target: true,
         speed:  25,
@@ -847,7 +887,7 @@ APP_SETTINGS.gameData = {
         char: '\u{1F987}',
         mobile: true,
         speed:  175,
-        fgColor: 'white',
+        fgColor: '#aad',
         target: true,
         maxHp: 4,
         sightRadius:  7,
@@ -856,9 +896,9 @@ APP_SETTINGS.gameData = {
       robot: {
         name: 'Robot',
         char: '\u{1F916}',
+        fgColor: '#ddd',
         mobile: true,
         speed:  50,
-        fgColor: 'white',
         target: true,
         maxHp: 15,
         baseDefense:  75,
@@ -868,9 +908,9 @@ APP_SETTINGS.gameData = {
       zombie: {
         name: 'Zombie',
         char: '\u{1F9DF}',
+        fgColor:  '#5f5',
         mobile: true,
         speed:  50,
-        fgColor: 'white',
         target: true,
         maxHp: 6,
         baseDefense:  5,

@@ -2,8 +2,8 @@ class Glyph extends Point {
   constructor(settings) {
     super(settings);
     this._char = settings.char || ' ';
-    this._fgColor = settings.fgColor || 'white';
-    this._bgColor = settings.bgColor || 'black';
+    this._fgColor = settings.fgColor || '#fff';
+    this._bgColor = settings.bgColor || '#011';
   }
 
   get char() {
