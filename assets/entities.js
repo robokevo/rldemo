@@ -257,10 +257,13 @@ class Entity extends Glyph {
       object = '%c{' + target.fgColor + '}'
         + target.name + '%c{}';
     }
-    if (game.getRandom() > 0.2) {
+    // todo: dodge chance based on speed, etc.
+    // object.precision > target.evasion
+    if (game.getRandom() > 0.3) {
       hit = true;
     }
     // todo: damage types, buffs
+    // todo: streamline hits/misses
     if (hit) {
       damage = 
         Math.round(
@@ -271,22 +274,27 @@ class Entity extends Glyph {
           )
         );
       if (this.player) {
-        // to do: colorize damage
+        // todo: color for crits, etc.
         if (damage < 1) {
           verb = ' missed ' + object;
         } else {
-          verb = ' hit ' + object + ' (' + damage + ' dmg)!';
+          verb = ' hit ' + object +
+          ' (' + '%c{white}' + damage + '%c{} dmg)!';
         }
         message = subject + verb;
       } else {
         if (damage < 1) {
           verb = ' missed ' + object;
         } else {
-          verb = ' hits ' + object + ' (' + damage + ' dmg)!';
+          verb = ' hits ' + object +
+          ' (' + '%c{white}' + damage + '%c{} dmg)!';
         }
         message = subject + verb;
       }
-    } 
+    } else {
+      verb = ' missed ' + object;
+      message = subject + verb;
+    }
     this.announce(message, 5);
     if (damage) {
       target.takeDamage(damage);
