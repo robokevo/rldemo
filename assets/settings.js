@@ -484,7 +484,7 @@ APP_SETTINGS.viewData = {
             colors + hp,
           );
 
-          // Power status lline
+          // Energy status lline
           display.draw(
             origin.x,
             origin.y + 4,
@@ -730,7 +730,7 @@ APP_SETTINGS.viewData = {
 APP_SETTINGS.appData = {
   startWidth: 26,
   startHeight: 26,
-  fontSize: 14,
+  fontSize: 16,
   fontFamily: 'Silkscreen',
   spacing: 1,
 // end of appData
@@ -861,7 +861,9 @@ APP_SETTINGS.gameData = {
     fgColor:  '#ff8',
     mobile: true,
     speed:  100,
-    basePower: 3,
+    defense: 0,
+    strength: 3,
+    energy: 0,
     maxHp:  99,
     sightRadius:  9,
   },
@@ -887,6 +889,7 @@ APP_SETTINGS.gameData = {
         char: '\u{1F987}',
         mobile: true,
         speed:  175,
+        strength: 1,
         fgColor: '#aad',
         target: true,
         maxHp: 4,
@@ -899,9 +902,11 @@ APP_SETTINGS.gameData = {
         fgColor: '#ddd',
         mobile: true,
         speed:  50,
+        strength: 5,       
+        defense: 10,
         target: true,
         maxHp: 15,
-        baseDefense:  75,
+        defense:  75,
         sightRadius:  5,
         intel:  7,
       },
@@ -911,9 +916,10 @@ APP_SETTINGS.gameData = {
         fgColor:  '#5f5',
         mobile: true,
         speed:  50,
+        strength: 3,
         target: true,
         maxHp: 6,
-        baseDefense:  5,
+        defense:  5,
         sightRadius:  6,
         intel:  5,
       },

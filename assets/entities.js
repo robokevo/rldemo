@@ -169,9 +169,10 @@ class Entity extends Glyph {
       //console.log(this.name+'('+this.x+','+this.y+')');
       let entity, result, path, newX, newY, newZ, tile, clear;
       if (this.intel > 4) {
-        if (this.getDistance(player) <= 1) {
+        if (this.getDistance(player) < 2) {
           this.attack(player);
         } else {
+          console.log(this.getDistance(player));
           result = this.search(player); 
           if (result) {
             let self = this;
@@ -258,12 +259,10 @@ class Entity extends Glyph {
         + target.name + '%c{}';
     }
     // todo: dodge chance based on speed, etc.
-    // object.precision > target.evasion
-    if (game.getRandom() > 0.3) {
+    if (true) {
       hit = true;
     }
     // todo: damage types, buffs
-    // todo: streamline hits/misses
     if (hit) {
       damage = 
         Math.round(
