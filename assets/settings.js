@@ -473,7 +473,14 @@ APP_SETTINGS.viewData = {
           //} else {
           //  hp = hp.toString() + "/" + player.maxHp.toString();
           //}
-          hp = hp.toString() + "/" + player.maxHp.toString();
+          hp = player.hp;
+          if (hp < 0) {
+            hp = 0;
+          }
+          if (hp < 10) {
+            hp = '0' + hp;
+          }
+          currentHp = hp.toString() + "/" + player.maxHp.toString();
           
 
           let colors = fg + bg;
@@ -481,7 +488,7 @@ APP_SETTINGS.viewData = {
           display.drawText(
             origin.x + 2,
             origin.y + 3,
-            colors + hp,
+            colors + currentHp,
           );
 
           // Energy status lline
@@ -499,7 +506,7 @@ APP_SETTINGS.viewData = {
             colors + '0'
           );
 
-          // Strength
+          // Atk Power
           display.draw(
             origin.x,
             origin.y + 5,
@@ -511,10 +518,10 @@ APP_SETTINGS.viewData = {
           display.drawText(
             origin.x + 2,
             origin.y + 5,
-            colors + '0'
+            colors + player.atkPower
           );
 
-          // Shield
+          // Defense
           display.draw(
             origin.x,
             origin.y + 6,

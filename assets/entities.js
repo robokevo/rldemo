@@ -13,8 +13,9 @@ class Entity extends Glyph {
     // todo: calculate hp based on con type stat
     this._maxHp = subsettings.maxHp || 5;
     this._hp = subsettings.hp || this._maxHp;
-    this._basePower = subsettings.basePower || 2;
-    this._baseDefense = subsettings.baseDefense || 0;
+    this._strength = subsettings.strength || 2;
+    this._defense = subsettings.defense || 0;
+    this._energy = subsettings.energy || 0;
     this._spreader = subsettings.spreader || false;
     this._spreadRate = subsettings.spreadRate || 0;
     this._spreadRange = subsettings.spreadRange || 0;
@@ -40,23 +41,16 @@ class Entity extends Glyph {
   get atkPower() {
     // todo: rename power/attack to str
     // todo: figure in stats + equipment
-    return this.basePower;
+    return this.strength;
   }
 
-  get basePower() {
-    return this._basePower;
+  // todo: factor in buffs
+  get strength() {
+    return this._strength;
   }
-
-  get baseDefense() {
-    return this._baseDefense;
-  }
-
-
 
   get defense() {
-    // returns defense value including base defense plus
-    // (eventually) equipment defense etc.
-    return this.baseDefense;
+    return this._defense;
   }
 
   get fov() {
@@ -172,7 +166,6 @@ class Entity extends Glyph {
         if (this.getDistance(player) < 2) {
           this.attack(player);
         } else {
-          console.log(this.getDistance(player));
           result = this.search(player); 
           if (result) {
             let self = this;
@@ -242,7 +235,6 @@ class Entity extends Glyph {
   
 
   attack(target) {
-    console.log(target);
     // todo: miss chance based on speed
     const game = this.game;
     let hit = false;
