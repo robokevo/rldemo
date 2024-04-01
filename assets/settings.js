@@ -38,7 +38,7 @@ APP_SETTINGS.viewData = {
       let banner = 'M O O N  M I N E R Z Z';
       let prompt = 'Press [Enter] to ' + verb;
       // todo: version number var in game settings
-      const version = ' (v 0.1.0.3a)';
+      const version = ' (v 0.1.0.4)';
       const display = view.display;
       const bgColor = '%b{' + this.colors('bg1') + '}';
       const fgColor = '%c{' + this.colors('fg1') + '}';
@@ -653,7 +653,7 @@ APP_SETTINGS.viewData = {
           if (!exit) {
             exit = game.stage.mainEntrance;
           }
-          let remaining = Math.floor(player.getDistance(exit)) * 10;
+          let remaining = Math.round(player.getDistance(exit)*10);
           display.drawText(origin.x + 6, origin.y + 2,
             '%c{white}' + bg + remaining + 
             fg + bg + 'm'
