@@ -25,7 +25,6 @@ class Entity extends Glyph {
     this._hearing = subsettings.hearing || true;
     this._sightRadius = subsettings.sightRadius || 4;
     this._known = {};
-    this._origin = null;
     // will determine acting path
     this._intel = subsettings.intel || 0;
     //tracks explored tiles
@@ -71,14 +70,6 @@ class Entity extends Glyph {
 
   get intel() {
     return this._intel;
-  }
-
-  get origin() {
-    return this._origin;
-  }
-
-  set origin(newOrigin) {
-    this._origin = newOrigin;
   }
 
   get hp() {
@@ -436,10 +427,14 @@ class Entity extends Glyph {
           game.move(this,coord);
           result = true;
         } else if (tile.direction === 'up') {
-          coord.z--;
-          this.announce(`You ascend to level ${coord.z+1}`, 1);
-          game.move(this,coord);
-          result = true;
+          if (!game.stages[this._currentDepth-1]) {
+            game.move(this,coord);
+          } else {
+            coord.z--;
+            this.announce(`You ascend to level ${coord.z+1}`, 1);
+            game.move(this,coord);
+            result = true;
+          }
         }
       } else {
         game.move(this,coord);

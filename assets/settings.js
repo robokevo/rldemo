@@ -647,7 +647,11 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x + Math.floor((this.width)/2-2), origin.y, name);
           //display.draw(origin.x, origin.y, player.char, null, bg);
           display.drawText(origin.x, origin.y + 2,
-            fg + bg + 'No Info'
+            fg + bg + 'Exit:'
+          );
+          let remaining = 0;
+          display.drawText(origin.x + 6, origin.y + 2,
+            fg + bg + remaining + "m"
           );
         }
       // end of sidebar2
@@ -747,7 +751,7 @@ APP_SETTINGS.gameData = {
   worldData:  {
     width:        38,
     height:       38,
-    depth:        6,
+    depth:        3,
     currentDepth: 0,
     stageData:       {
       0: {

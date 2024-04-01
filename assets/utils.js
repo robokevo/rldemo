@@ -4,6 +4,9 @@ class Point {
     this._x = coord.x;
     this._y = coord.y;
     this._z = coord.z;
+    this._originX = coord.x;
+    this._originY = coord.y;
+    this._originZ = coord.z;
   }
 
   get x() {
@@ -22,6 +25,21 @@ class Point {
     return {x: this._x, y: this._y, z: this._z};
   }
   
+  set coord(newCoord) {
+    this.x = newCoord.x;
+    this.y = newCoord.y;
+    this.z = newCoord.z;
+  }
+
+  get origin() {
+    return {x: this._originX, y: this._originY, z: this._originZ};
+  }
+
+  set origin(coord) {    
+    this._originX = coord.x;
+    this._originY = coord.y;
+    this._originZ = coord.z;
+  }
 
   set x(newX) {
     this._x = newX;

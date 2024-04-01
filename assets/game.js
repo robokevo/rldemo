@@ -164,6 +164,9 @@ class Game {
       entity.x = freeXYZ.x;
       entity.y = freeXYZ.y;
       entity.z = freeXYZ.z;
+      if (entity.player) {
+        console.log('playa');
+      }
     } else {
       entity.x = coord.x;
       entity.y = coord.y;
@@ -454,14 +457,10 @@ class Game {
             // no bias skips wall region, starts at 1+
             index = regionList[1];
           }
-          targets = newStage.regions[index];
-          let target = this.getTile(
-            targets[this.getRandomInt(1,targets.length-1)]
-          );
-          //let exit = new Tile(game.tiles['hole']);
-          //newStage.mainExit = exit;
-          //exit.region = target.region;
-          //this.setTile(target, exit);
+          //targets = newStage.regions[index];
+          //let target = this.getTile(
+          //  targets[this.getRandomInt(1,targets.length-1)]
+          //);
           pass = true
         } else {
           const lastStage = game.stages[depth-1];
@@ -489,17 +488,11 @@ class Game {
               let entrance = new Tile(game.tiles['ladder']);
               entrance.region = enterTarget.region;
               this.setTile(enterTarget, entrance);
-              //console.log(lastStage.mainExit);
-              //console.log(lastStage.mainEntrance);
+              lastStage.mainExit = exit;
+              newStage.mainEntrance = entrance;
               pass = true
             }
-            
           }
-          //// even levels are modulo 1 because depth is index 0
-          //if (depth % 2 > 0) {
-          ////  console.log(this.bias);
-          ////  console.log(this.coinFlip);
-          //}
         }
         newStage.fov = new ROT.FOV.PreciseShadowcasting(
           (x, y) => {
@@ -551,6 +544,7 @@ class Game {
 
   newEntity(name, target) {
     // todo: secondary settings for configuring base entity from emoji
+    // todo: CURRENTLY UNUSED WHY DID I WRITE THIS, will check notes
     const ent = new Entity(
       this.settings,
       this.settings.entityData.bestiary[name]
@@ -588,8 +582,13 @@ class Game {
         targets = stage.regions[index];
         target = targets[this.getRandomInt(1,targets.length-1)];
         let player = this.player;
+        let entrance = new Tile(game.tiles['ladder']);
         this.spawnEntity(player, target);
-      }
+        entrance.coord = player.coord;
+        this.stage.mainEntrance = entrance;
+        this.setTile(entrance.coord,entrance)
+        console.log(this);
+        }
       if (stageSettings) {
         let entities = Object.keys(stageSettings);
         for (let j = 0; j < entities.length; j++) {

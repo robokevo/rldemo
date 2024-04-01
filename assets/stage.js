@@ -68,12 +68,20 @@ class Stage extends Grid {
     return this.regions[this.regionKeys[this.regionKeys.length - 1]];
   }
 
+  get mainEntrance() {
+    return this._mainEntrance;
+  }
+
+  set mainEntrance(entrance) {
+    this._mainEntrance = entrance;
+  }
+
   get mainExit() {
     return this._mainExit;
   }
 
-  set mainExit(newExit) {
-    this._mainExit = newExit;
+  set mainExit(exit) {
+    this._mainExit = exit;
   }
 
   getTile(coord) {
