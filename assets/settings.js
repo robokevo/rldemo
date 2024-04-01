@@ -649,9 +649,14 @@ APP_SETTINGS.viewData = {
           display.drawText(origin.x, origin.y + 2,
             fg + bg + 'Exit:'
           );
-          let remaining = 0;
+          let exit = game.stage.mainExit;
+          if (!exit) {
+            exit = game.stage.mainEntrance;
+          }
+          let remaining = Math.floor(player.getDistance(exit)) * 10;
           display.drawText(origin.x + 6, origin.y + 2,
-            fg + bg + remaining + "m"
+            '%c{white}' + bg + remaining + 
+            fg + bg + 'm'
           );
         }
       // end of sidebar2

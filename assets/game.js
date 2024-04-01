@@ -587,7 +587,7 @@ class Game {
         entrance.coord = player.coord;
         this.stage.mainEntrance = entrance;
         this.setTile(entrance.coord,entrance)
-        console.log(this);
+        console.log(player.getDistance(this.stage.mainExit));
         }
       if (stageSettings) {
         let entities = Object.keys(stageSettings);

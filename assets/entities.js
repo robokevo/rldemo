@@ -427,7 +427,7 @@ class Entity extends Glyph {
           game.move(this,coord);
           result = true;
         } else if (tile.direction === 'up') {
-          if (!game.stages[this._currentDepth-1]) {
+          if (!game.stages[this.z-1]) {
             game.move(this,coord);
           } else {
             coord.z--;
